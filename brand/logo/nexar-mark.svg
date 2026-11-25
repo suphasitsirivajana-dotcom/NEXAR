@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 96" role="img" aria-label="NEXAR">
+  <!-- NEXAR Mark: flowing folded 3D metallic ribbon N (NEXCON family style). Uses currentColor. -->
+  <defs>
+    <linearGradient id="nx-l" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity=".42"/>
+      <stop offset="55%" stop-color="#fff" stop-opacity=".86"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity=".62"/>
+    </linearGradient>
+    <linearGradient id="nx-r" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#fff" stop-opacity=".40"/>
+      <stop offset="55%" stop-color="#fff" stop-opacity=".84"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity=".64"/>
+    </linearGradient>
+    <linearGradient id="nx-f" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="50%" stop-color="#fff" stop-opacity=".96"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity=".86"/>
+    </linearGradient>
+    <mask id="m-l" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nx-l)"/></mask>
+    <mask id="m-r" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nx-r)"/></mask>
+    <mask id="m-f" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nx-f)"/></mask>
+  </defs>
+  <g fill="currentColor">
+    <!-- back left ascending fold -->
+    <path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#m-l)"/>
+    <!-- back right descending fold -->
+    <path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#m-r)"/>
+    <!-- front sweeping diagonal ribbon -->
+    <path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z" mask="url(#m-f)"/>
+  </g>
+</svg>

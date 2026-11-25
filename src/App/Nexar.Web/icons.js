@@ -1,0 +1,90 @@
+// Minimal stroke icon set (24x24, 1.6px stroke). All drawn for NEXAR.
+const P = {
+  newfile: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/>',
+  open: '<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2.5h8.5A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/>',
+  layers: '<path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+  save: '<path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/>',
+  orbit: '<path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4z"/><path d="M4 7.4l8 4.6 8-4.6M12 12v9.2"/>',
+  plan: '<rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M3.5 11h7V3.5M14 20.5V14h6.5"/>',
+  walk: '<circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2.2-6.5L14 17v4M8 11.5l3-3.5 3.5.8 1.8 3.7 2.2 1M11.2 14.5l-.5-4"/>',
+  fit: '<path d="M3.5 8.5v-5h5M15.5 3.5h5v5M20.5 15.5v5h-5M8.5 20.5h-5v-5"/><rect x="8" y="8" width="8" height="8" rx="1"/>',
+  select: '<path d="M5 3.5l13 6.2-5.6 1.9-1.9 5.6z"/><path d="m12.4 11.6 6.1 6.1"/>',
+  comment: '<path d="M20.5 12a7.5 7.5 0 0 1-11 6.6L4 20l1.4-4.5A7.5 7.5 0 1 1 20.5 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" stroke-width="2.4"/>',
+  note: '<path d="M15 3.5H6A1.5 1.5 0 0 0 4.5 5v14A1.5 1.5 0 0 0 6 20.5h12a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M15 3.5V8h4.5M8 12.5h8M8 16h5"/>',
+  issue: '<path d="M5 21V4"/><path d="M5 4.5h11.5l-2 4 2 4H5"/>',
+  photo: '<path d="M3.5 8A1.5 1.5 0 0 1 5 6.5h2.5L9 4.5h6l1.5 2H19A1.5 1.5 0 0 1 20.5 8v10A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z"/><circle cx="12" cy="12.8" r="3.6"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  unlock: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M9 7V4.5h6V7M6 7l1 13h10l1-13"/>',
+  check: '<path d="m4.5 12.5 4.5 4.5 10.5-11"/>',
+  resolve: '<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.8-5"/>',
+  bookmark: '<path d="M6.5 3.5h11v17l-5.5-3.8-5.5 3.8z"/><path d="M12 7.5v5M9.5 10h5"/>',
+  views: '<rect x="3.5" y="4.5" width="7.5" height="6" rx="1"/><rect x="13" y="4.5" width="7.5" height="6" rx="1"/><rect x="3.5" y="13.5" width="7.5" height="6" rx="1"/><rect x="13" y="13.5" width="7.5" height="6" rx="1"/>',
+  xray: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M3 3l18 18M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3 3.6M6.4 6.9C3.9 8.6 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9 9 0 0 0 4.2-1"/>',
+  section: '<path d="M3 12h18" stroke-dasharray="2 2.2"/><path d="M6 9 12 4l6 5M6 15l6 5 6-5"/>',
+  grid: '<rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M3.5 9h17M3.5 15h17M9 3.5v17M15 3.5v17"/>',
+  pin: '<path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/>',
+  navlock: '<path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/><rect x="8.8" y="11" width="6.4" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/>',
+  anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 12.5a7 7 0 0 0 14 0M3 12.5h3.5M17.5 12.5H21"/>',
+  gps: '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
+  follow: '<path d="M12 3 19 20l-7-3.5L5 20z"/>',
+  qr: '<rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM20.5 14v.01M17 20.5h3.5V17M14 20.5h.01"/>',
+  scan: '<path d="M3.5 8V5A1.5 1.5 0 0 1 5 3.5h3M16 3.5h3A1.5 1.5 0 0 1 20.5 5v3M20.5 16v3a1.5 1.5 0 0 1-1.5 1.5h-3M8 20.5H5A1.5 1.5 0 0 1 3.5 19v-3M7 12h10"/>',
+  path: '<circle cx="6" cy="18.5" r="2"/><circle cx="18" cy="5.5" r="2"/><path d="M8 18.5h7.5a3 3 0 0 0 0-6h-7a3 3 0 0 1 0-6H16"/>',
+  erase: '<path d="M20 20H9.5L4 14.5a1.8 1.8 0 0 1 0-2.5L12.5 3.5a1.8 1.8 0 0 1 2.5 0L20.5 9a1.8 1.8 0 0 1 0 2.5L12 20"/><path d="m8.5 8 7.5 7.5"/>',
+  compass: '<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+  ar: '<path d="M3.5 8V6A2.5 2.5 0 0 1 6 3.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2"/><path d="M12 7.5l4 2.3v4.4L12 16.5l-4-2.3V9.8zM8 9.8l4 2.3 4-2.3M12 12.1v4.4"/>',
+  camera: '<path d="M15.5 10.5 21 7.5v9l-5.5-3"/><rect x="3" y="6.5" width="12.5" height="11" rx="2"/>',
+  gyro: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2M3 9a9 9 0 0 1 2-3.5M21 15a9 9 0 0 1-2 3.5"/>',
+  sliders: '<path d="M4 6.5h9M17 6.5h3M4 12h3M11 12h9M4 17.5h11M19 17.5h1"/><circle cx="15" cy="6.5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17.5" r="2"/>',
+  export: '<path d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 13.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-5.5"/>',
+  import: '<path d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 13.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-5.5"/>',
+  table: '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10"/>',
+  json: '<path d="M8.5 4.5C6.5 4.5 6.5 6 6.5 8s-1 3.5-3 4c2 .5 3 2 3 4s0 3.5 2 3.5M15.5 4.5c2 0 2 1.5 2 3.5s1 3.5 3 4c-2 .5-3 2-3 4s0 3.5-2 3.5"/>',
+  info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.01"/>',
+  html: '<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M9.5 12.5 7.5 14.5l2 2M14.5 12.5l2 2-2 2"/>',
+  ifc: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/><circle cx="12" cy="12" r="1.6"/>',
+  bcf: '<circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="6" r="2.3"/><circle cx="18" cy="18" r="2.3"/><path d="m8 11 8-4M8 13l8 4"/>',
+  panel: '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M14.5 4v16"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  rotR: '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4.5V11h-6.5"/>',
+  rotL: '<path d="M4 11a8 8 0 1 1 2.3 5.7"/><path d="M4 4.5V11h6.5"/>',
+  target: '<circle cx="12" cy="12" r="7"/><path d="M12 2.5V7M12 17v4.5M2.5 12H7M17 12h4.5"/>',
+  send: '<path d="M21 3.5 10 14.5M21 3.5l-7 17-4-6-6-4z"/>',
+  image: '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><circle cx="9" cy="9.5" r="1.6"/><path d="m20.5 15.5-5-5-9 9"/>',
+  print: '<path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 5 9h14a1.5 1.5 0 0 1 1.5 1.5v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/>',
+  twopoint: '<circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7 17 17 7" stroke-dasharray="2 2.4"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
+  sample: '<path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6M4 20h16"/>',
+  home: '<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5M10 20v-5.5h4V20"/>',
+  sethome: '<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h7M18 9.5V13"/><circle cx="18" cy="18" r="3.2"/><path d="M18 16.6v2.8M16.6 18h2.8"/>',
+  scope: '<rect x="4" y="4" width="16" height="16" rx="1.5" stroke-dasharray="3 2.4"/><path d="M12 8.5 15 10.2v3.6L12 15.5l-3-1.7v-3.6z"/>',
+  chevron:'<path d="m9 6 6 6-6 6"/>',
+  chevDown:'<path d="m6 9 6 6 6-6"/>',
+  settings:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  more:'<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
+  cube:'<path d="M12 3 20 7.5v9L12 21 4 16.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',
+  ruler:'<path d="M4 16.5 16.5 4l3.5 3.5L7.5 20z"/><path d="m14 6.5 1.8 1.8M11 9.5l1.8 1.8M8 12.5l1.8 1.8"/>',
+  keyboard:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/>',
+  pencil:'<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8.5 17.5 4 19l1.5-4.5z"/><path d="m14 6 4 4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2.5 12h2M19.5 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+  moon: '<path d="M20.2 14.5A8.2 8.2 0 1 1 9.5 3.8a6.5 6.5 0 0 0 10.7 10.7z"/>',
+  dot: '<circle cx="12" cy="12" r="2"/>'
+};
+
+export function icon(name, cls = '') {
+  return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || P.dot}</svg>`;
+}
+
+// 04. Premium Tech Horizontal Lockup (Ribbon N | NEX silver-white + AR Site Yellow)
+export const LOGO_LOCKUP = `<svg class="logo-lockup" viewBox="0 0 264 36" aria-label="NEXAR"><defs><linearGradient id="nxa-hl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".42"/><stop offset="55%" stop-color="#fff" stop-opacity=".86"/><stop offset="100%" stop-color="#fff" stop-opacity=".62"/></linearGradient><linearGradient id="nxa-hr" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity=".40"/><stop offset="55%" stop-color="#fff" stop-opacity=".84"/><stop offset="100%" stop-color="#fff" stop-opacity=".64"/></linearGradient><mask id="nxa-mhl" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-hl)"/></mask><mask id="nxa-mhr" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-hr)"/></mask></defs><g transform="translate(-2 2) scale(.335)" fill="currentColor"><path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#nxa-mhl)"/><path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#nxa-mhr)"/><path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z"/></g><line x1="48" y1="5" x2="48" y2="31" stroke="currentColor" stroke-opacity=".26" stroke-width="1"/><g transform="translate(62 7.5) scale(.81)" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round"><path d="M3 21.5V4.8L26.5 21.2V4.5"/><path d="M54 5h25M54 13h25M54 21h25"/><path d="M106 4.8L131 21.2M131 4.8L106 21.2"/></g><g transform="translate(62 7.5) scale(.81)" fill="none" stroke="var(--nx-ar-ink, #F5C518)" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round"><path d="M157.5 21.5L171 4.8L184.5 21.5M163 16.2h16"/><path d="M212.5 21.5V5h16.5a4.6 4.6 0 0 1 0 9.2h-16.5M227.5 14.2L238.5 21.5"/></g></svg>`;
+
+// Compact Ribbon N mark (used on narrow phone / landscape titlebar)
+export const LOGO = `<svg class="logo-mark" viewBox="0 0 120 96" aria-label="NEXAR"><defs><linearGradient id="nxa-ml" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".42"/><stop offset="55%" stop-color="#fff" stop-opacity=".86"/><stop offset="100%" stop-color="#fff" stop-opacity=".62"/></linearGradient><linearGradient id="nxa-mr" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity=".40"/><stop offset="55%" stop-color="#fff" stop-opacity=".84"/><stop offset="100%" stop-color="#fff" stop-opacity=".64"/></linearGradient><mask id="nxa-mml" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-ml)"/></mask><mask id="nxa-mmr" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-mr)"/></mask></defs><g fill="currentColor"><path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#nxa-mml)"/><path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#nxa-mmr)"/><path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z"/></g></svg>`;
+
+// 01 + 03 Architectural Geometry Vertical Lockup (NEX silver-white + AR Site Yellow)
+export const LOGO_HERO = `<svg class="logo-hero" viewBox="0 0 244 156" aria-label="NEXAR"><defs><linearGradient id="nxa-vl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".42"/><stop offset="55%" stop-color="#fff" stop-opacity=".86"/><stop offset="100%" stop-color="#fff" stop-opacity=".62"/></linearGradient><linearGradient id="nxa-vr" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity=".40"/><stop offset="55%" stop-color="#fff" stop-opacity=".84"/><stop offset="100%" stop-color="#fff" stop-opacity=".64"/></linearGradient><mask id="nxa-mvl" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-vl)"/></mask><mask id="nxa-mvr" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxa-vr)"/></mask></defs><g stroke="currentColor" stroke-opacity=".12" stroke-width=".65" fill="none"><line x1="76" y1="0" x2="76" y2="96"/><line x1="168" y1="0" x2="168" y2="96"/><line x1="58" y1="14" x2="186" y2="14"/><line x1="58" y1="84" x2="186" y2="84"/><line x1="68" y1="4" x2="176" y2="94"/></g><g transform="translate(65 4) scale(.95)" fill="currentColor"><path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#nxa-mvl)"/><path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#nxa-mvr)"/><path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z"/></g><g transform="translate(0 118)" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="round"><path d="M3 21.5V4.8L26.5 21.2V4.5"/><path d="M54 5h25M54 13h25M54 21h25"/><path d="M106 4.8L131 21.2M131 4.8L106 21.2"/></g><g transform="translate(0 118)" fill="none" stroke="var(--nx-ar-ink, #F5C518)" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="round"><path d="M157.5 21.5L171 4.8L184.5 21.5M163 16.2h16"/><path d="M212.5 21.5V5h16.5a4.6 4.6 0 0 1 0 9.2h-16.5M227.5 14.2L238.5 21.5"/></g></svg>`;

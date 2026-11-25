@@ -1,0 +1,123 @@
+/* =====================================================================
+   NEXAR theme — shared NEXCON neutral tokens
+   Logo AR accent = Site Yellow (--nx-ar-ink: #F5C518 / #C99100)
+   UI & Buttons accent = Soft Site Yellow (--nx-ar: #D8AF30 / #CFA019)
+   Switch theme with: <html data-theme="light"> or <html data-theme="dark">
+   ===================================================================== */
+
+:root {
+  --nx-bg-app: #F4F4F5;
+  --nx-bg-surface: #FFFFFF;
+  --nx-bg-surface-alt: #FAFAFA;
+  --nx-bg-hover: #EBEBEC;
+  --nx-bg-viewport: #F7F7F8;
+  --nx-border: #DEDEE0;
+  --nx-border-strong: #C4C4C7;
+  --nx-text: #0E0E10;
+  --nx-text-2: #5A5A5F;
+  --nx-text-disabled: #9E9EA3;
+  --nx-accent: #0E0E10;
+  --nx-accent-fg: #FFFFFF;
+  --nx-logo: #0E0E10;
+  --nx-selection: #A87A08;
+  --nx-selection-fill: rgba(184, 134, 11, 0.12);
+  --nx-ar: #CFA019;
+  --nx-ar-fg: #0E0E10;
+  --nx-ar-ink: #C99100;
+  --nx-success: #2E8A5F;
+  --nx-warning: #B97A12;
+  --nx-danger: #C93C3C;
+  --nx-font-ui: Inter, "IBM Plex Sans Thai", "Segoe UI", sans-serif;
+  --nx-font-num: "JetBrains Mono", Consolas, monospace;
+  --nx-radius-sm: 4px;
+  --nx-radius-md: 6px;
+  --nx-radius-lg: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --nx-bg-app: #0E0E10;
+    --nx-bg-surface: #161618;
+    --nx-bg-surface-alt: #1F1F22;
+    --nx-bg-hover: #2A2A2E;
+    --nx-bg-viewport: #121214;
+    --nx-border: #2A2A2E;
+    --nx-border-strong: #3F3F44;
+    --nx-text: #F4F4F5;
+    --nx-text-2: #9E9EA3;
+    --nx-text-disabled: #5A5A5F;
+    --nx-accent: #F4F4F5;
+    --nx-accent-fg: #0E0E10;
+    --nx-logo: #FFFFFF;
+    --nx-selection: #DFB73A;
+    --nx-selection-fill: rgba(223, 183, 58, 0.13);
+    --nx-ar: #D8AF30;
+    --nx-ar-fg: #0E0E10;
+    --nx-ar-ink: #F5C518;
+    --nx-success: #4CB884;
+    --nx-warning: #E0A43A;
+    --nx-danger: #E56565;
+  }
+}
+
+:root[data-theme="dark"] {
+  --nx-bg-app: #0E0E10;
+  --nx-bg-surface: #161618;
+  --nx-bg-surface-alt: #1F1F22;
+  --nx-bg-hover: #2A2A2E;
+  --nx-bg-viewport: #121214;
+  --nx-border: #2A2A2E;
+  --nx-border-strong: #3F3F44;
+  --nx-text: #F4F4F5;
+  --nx-text-2: #9E9EA3;
+  --nx-text-disabled: #5A5A5F;
+  --nx-accent: #F4F4F5;
+  --nx-accent-fg: #0E0E10;
+  --nx-logo: #FFFFFF;
+  --nx-selection: #DFB73A;
+  --nx-selection-fill: rgba(223, 183, 58, 0.13);
+  --nx-ar: #D8AF30;
+  --nx-ar-fg: #0E0E10;
+  --nx-ar-ink: #F5C518;
+  --nx-success: #4CB884;
+  --nx-warning: #E0A43A;
+  --nx-danger: #E56565;
+}
+
+/* Optional UI accent overrides (selected in Settings; NEXAR logo AR stays yellow) */
+:root[data-accent="blue"] {
+  --nx-selection: #2F6BFF;
+  --nx-selection-fill: rgba(47, 107, 255, 0.12);
+  --nx-ar: #2F6BFF;
+  --nx-ar-fg: #FFFFFF;
+}
+:root[data-theme="dark"][data-accent="blue"] {
+  --nx-selection: #5B8CFF;
+  --nx-selection-fill: rgba(91, 140, 255, 0.15);
+  --nx-ar: #3B82F6;
+  --nx-ar-fg: #FFFFFF;
+}
+:root[data-accent="emerald"] {
+  --nx-selection: #1F8A5B;
+  --nx-selection-fill: rgba(31, 138, 91, 0.12);
+  --nx-ar: #1F8A5B;
+  --nx-ar-fg: #FFFFFF;
+}
+:root[data-theme="dark"][data-accent="emerald"] {
+  --nx-selection: #4CB884;
+  --nx-selection-fill: rgba(76, 184, 132, 0.15);
+  --nx-ar: #3DA874;
+  --nx-ar-fg: #0E0E10;
+}
+:root[data-accent="mono"] {
+  --nx-selection: #0E0E10;
+  --nx-selection-fill: rgba(14, 14, 16, 0.09);
+  --nx-ar: #0E0E10;
+  --nx-ar-fg: #FFFFFF;
+}
+:root[data-theme="dark"][data-accent="mono"] {
+  --nx-selection: #E4E4E7;
+  --nx-selection-fill: rgba(244, 244, 245, 0.12);
+  --nx-ar: #E4E4E7;
+  --nx-ar-fg: #0E0E10;
+}

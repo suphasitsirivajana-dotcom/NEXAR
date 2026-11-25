@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEXAR Directory Manual</title>
+<!--
+  NEXAR Directory Manual: คู่มือการจัดเรียงโฟลเดอร์ (ห้ามลบไฟล์นี้)
+  หน้านี้แสดงผลอย่างเดียว ข้อมูลมาจาก manual.data.js ที่ tools/dirmap.py สร้าง
+  (สแกนโฟลเดอร์จริง + อ่าน JS import + คำอธิบายจาก descriptions.yaml)
+  อัปเดต: แก้ descriptions.yaml แล้วรัน  python tools/dirmap.py
+  เปิดด้วยดับเบิลคลิกได้เลย ไม่ต้องมี server
+-->
+<link rel="stylesheet" href="../brand/tokens/nexar-theme.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--nx-bg-app); color: var(--nx-text); font: 14px/1.6 var(--nx-font-ui); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; }
+  header.top { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--nx-border); flex-wrap: wrap; }
+  header.top svg { height: 18px; color: var(--nx-logo); flex: none; }
+  header.top h1 { font-size: 13px; font-weight: 500; color: var(--nx-text-2); margin: 0; flex: 1; white-space: nowrap; }
+  .seg { display: inline-flex; border: 1px solid var(--nx-border); border-radius: var(--nx-radius-md); overflow: hidden; }
+  .seg button { border: 0; background: var(--nx-bg-surface); color: var(--nx-text-2); padding: 6px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+  .seg button.on { background: var(--nx-accent); color: var(--nx-accent-fg); }
+  .btn { background: var(--nx-bg-surface); color: var(--nx-text); border: 1px solid var(--nx-border); border-radius: var(--nx-radius-md); padding: 6px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+  .note { margin: 16px 0 0; padding: 10px 14px; border: 1px solid var(--nx-border-strong); border-radius: var(--nx-radius-md); background: var(--nx-bg-surface); font-size: 13px; color: var(--nx-text-2); }
+  .note b { color: var(--nx-text); }
+  .note.warn { border-color: var(--nx-warning); }
+  .note.warn ul { margin: 4px 0 0; padding-left: 18px; font: 12px var(--nx-font-num); }
+  .note.err { border-color: var(--nx-danger); color: var(--nx-danger); }
+  nav.tabs { display: flex; gap: 4px; margin: 18px 0 16px; border-bottom: 1px solid var(--nx-border); overflow-x: auto; }
+  nav.tabs button { border: 0; background: none; color: var(--nx-text-2); font: inherit; padding: 8px 12px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+  nav.tabs button.on { color: var(--nx-text); border-color: var(--nx-accent); }
+  section { display: none; } section.on { display: block; }
+  h2 { font-size: 18px; margin: 0 0 4px; } .lead { color: var(--nx-text-2); margin: 0 0 16px; }
+  .dim { color: var(--nx-text-2); }
+
+  /* mind map */
+  :root { --mm-1: #2f7de1; --mm-2: #1a9e6a; --mm-3: #c77c12; --mm-4: #b0459c; --mm-5: #d0453c; --mm-6: #6a5bd6; --mm-7: #138a9e; --mm-8: #7a7f2a; }
+  [data-theme="dark"] { --mm-1: #6aa8f5; --mm-2: #4cc994; --mm-3: #f0a84a; --mm-4: #e07fcf; --mm-5: #f27c72; --mm-6: #a59af2; --mm-7: #52c3d6; --mm-8: #c2c85e; }
+  .explorer { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
+  .panel { background: var(--nx-bg-surface); border: 1px solid var(--nx-border); border-radius: var(--nx-radius-lg); }
+  .mmbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .search { flex: 1; min-width: 200px; border: 1px solid var(--nx-border); border-radius: var(--nx-radius-md); background: var(--nx-bg-surface); padding: 6px 12px; font: inherit; font-size: 13px; color: var(--nx-text); outline: none; }
+  .mm { position: relative; height: 72vh; overflow: hidden; background: var(--nx-bg-app);
+        background-image: radial-gradient(var(--nx-border) 1px, transparent 1px); background-size: 22px 22px; touch-action: none; }
+  .mm svg { width: 100%; height: 100%; display: block; cursor: grab; user-select: none; }
+  .mm svg.drag { cursor: grabbing; }
+  .mm .zoom { position: absolute; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .mm .zoom button { width: 30px; height: 30px; padding: 0; font-size: 16px; }
+  .mm .hint { position: absolute; left: 12px; bottom: 10px; font-size: 11px; color: var(--nx-text-2); pointer-events: none; }
+  .mm g.nd { cursor: pointer; }
+  .mm g.nd rect.box { fill: var(--nx-bg-surface); stroke-width: 1.5; }
+  .mm g.nd:hover rect.box { fill: var(--nx-bg-hover); }
+  .mm g.nd.sel rect.box { stroke-width: 3; fill: var(--nx-bg-hover); }
+  .mm g.nd.hit rect.box { stroke: var(--nx-warning) !important; stroke-width: 3; }
+  .mm g.nd.planned rect.box { stroke-dasharray: 5 4; fill: transparent; }
+  .mm g.nd.root rect.box { fill: var(--nx-accent); stroke: var(--nx-accent); }
+  .mm g.nd.root text { fill: var(--nx-accent-fg) !important; }
+  .mm text.nm { font-weight: 600; font-size: 13px; fill: var(--nx-text); }
+  .mm g.nd.planned text.nm { fill: var(--nx-text-2); }
+  .mm text.ds { font-size: 11.5px; fill: var(--nx-text-2); }
+  .mm .tg circle { fill: var(--nx-bg-surface); stroke-width: 1.5; }
+  .mm .tg text { font-size: 11px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .mm path.ln { fill: none; stroke-width: 2.2; opacity: .75; }
+  .ic { width: 16px; height: 16px; flex: none; color: var(--nx-text-2); }
+  .badge { font-size: 10px; border: 1px solid var(--nx-border-strong); border-radius: 4px; padding: 0 5px; color: var(--nx-text-2); white-space: nowrap; }
+  .badge.done { border-color: var(--nx-success); color: var(--nx-success); }
+  .badge.planned { border-style: dashed; }
+  .badge.gen { border-color: var(--nx-selection); color: var(--nx-selection); }
+  .badge.lock { background: var(--nx-accent); color: var(--nx-accent-fg); border-color: var(--nx-accent); }
+  .badge.miss { border-color: var(--nx-warning); color: var(--nx-warning); }
+  .detail { padding: 20px; position: sticky; top: 12px; }
+  .detail .path { font: 12px var(--nx-font-num); color: var(--nx-text-2); word-break: break-all; }
+  .detail h3 { font-size: 20px; margin: 4px 0 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .detail h3 .ic { width: 20px; height: 20px; }
+  .detail .row { margin: 14px 0 0; }
+  .detail .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--nx-text-2); font-weight: 600; margin-bottom: 2px; }
+  .detail .dev { border-left: 2px solid var(--nx-selection); padding-left: 10px; }
+  .mono { font-family: var(--nx-font-num); font-size: 12px; }
+  .detail .kids { display: flex; flex-wrap: wrap; gap: 6px; }
+  .detail .kids span { border: 1px solid var(--nx-border); border-radius: var(--nx-radius-sm); padding: 2px 8px; font-size: 12px; cursor: pointer; }
+  .detail .kids span:hover { background: var(--nx-bg-hover); }
+
+  /* layers */
+  .layers { display: grid; gap: 8px; max-width: 760px; }
+  .layer { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--nx-border); border-radius: var(--nx-radius-md); background: var(--nx-bg-surface); cursor: pointer; transition: opacity .15s, border-color .15s; }
+  .layer.planned { border-style: dashed; }
+  .layer .t { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .layer .d { color: var(--nx-text-2); font-size: 13px; }
+  .layer .pk { display: flex; flex-wrap: wrap; gap: 6px; } .layer .pk span { font: 11px var(--nx-font-num); border: 1px solid var(--nx-border); border-radius: 4px; padding: 1px 6px; }
+  .layers.focus .layer { opacity: .35; }
+  .layers.focus .layer.me { opacity: 1; border-color: var(--nx-accent); }
+  .layers.focus .layer.uses { opacity: 1; border-color: var(--nx-success); }
+  .layers.focus .layer.usedby { opacity: 1; border-color: var(--nx-selection); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--nx-text-2); margin: 12px 0; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; border: 2px solid; margin-right: 6px; vertical-align: -1px; }
+  .explain { max-width: 760px; margin-top: 12px; padding: 12px 14px; border-radius: var(--nx-radius-md); background: var(--nx-bg-surface-alt); border: 1px solid var(--nx-border); font-size: 13px; min-height: 48px; }
+
+  /* tasks / rules / glossary */
+  .cards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card { background: var(--nx-bg-surface); border: 1px solid var(--nx-border); border-radius: var(--nx-radius-lg); padding: 14px 16px; }
+  .card h4 { margin: 0 0 6px; font-size: 14px; }
+  .card ol { margin: 0; padding-left: 18px; font-size: 13px; }
+  .card .go { margin-top: 8px; font: 12px var(--nx-font-num); color: var(--nx-text-2); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+  pre.cmd { margin: 8px 0 0; padding: 8px 10px; background: var(--nx-bg-app); border: 1px solid var(--nx-border); border-radius: var(--nx-radius-sm); font: 12px var(--nx-font-num); white-space: pre-wrap; word-break: break-all; }
+  .pfilter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pfilter button { border: 1px solid var(--nx-border); background: var(--nx-bg-surface); color: var(--nx-text-2); border-radius: 999px; padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+  .pfilter button.on { background: var(--nx-accent); color: var(--nx-accent-fg); border-color: var(--nx-accent); }
+  .prop { background: var(--nx-bg-surface); border: 1px solid var(--nx-border); border-radius: var(--nx-radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+  .prop h4 { margin: 0 0 4px; font-size: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .prop .pid { font: 12px var(--nx-font-num); color: var(--nx-text-2); }
+  .prop .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--nx-text-2); font-weight: 600; margin: 10px 0 2px; }
+  .prop ol { margin: 0; padding-left: 18px; font-size: 13px; }
+  .prop .ask { border-left: 3px solid var(--nx-warning); padding: 6px 10px; background: var(--nx-bg-surface-alt); border-radius: 0 6px 6px 0; font-size: 13px; }
+  .prop .ask div::before { content: "❓ "; }
+  .badge.rej { text-decoration: line-through; }
+  .rule { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--nx-border); }
+  .rule:last-child { border-bottom: 0; }
+  .rule .n { font: 600 13px var(--nx-font-num); color: var(--nx-text-2); }
+  .rule b { display: block; } .rule span { color: var(--nx-text-2); font-size: 13px; }
+  table.gl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.gl td { padding: 8px 10px; border-bottom: 1px solid var(--nx-border); vertical-align: top; }
+  table.gl td:first-child { font-family: var(--nx-font-num); white-space: nowrap; font-weight: 600; width: 1%; }
+  body.general .dev-only { display: none; }
+
+  /* roadmap */
+  .rm-sum { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .rm-sum .big { font: 600 28px var(--nx-font-num); }
+  .bar { height: 8px; border-radius: 99px; background: var(--nx-bg-surface-alt); border: 1px solid var(--nx-border); overflow: hidden; min-width: 120px; flex: 1; }
+  .bar i { display: block; height: 100%; background: var(--nx-success); }
+  .bar i.doing { background: var(--nx-accent); }
+  .stage { display: grid; grid-template-columns: 44px 1fr; gap: 0 12px; position: relative; }
+  .stage::before { content: ""; position: absolute; left: 21px; top: 40px; bottom: -6px; border-left: 2px solid var(--nx-border); }
+  .stage:last-child::before { display: none; }
+  .stage .num { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 600 13px var(--nx-font-num);
+                border: 2px solid var(--nx-border-strong); background: var(--nx-bg-surface); z-index: 1; }
+  .stage.done .num { background: var(--nx-success); border-color: var(--nx-success); color: var(--nx-accent-fg); }
+  .stage.doing .num { border-color: var(--nx-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--nx-accent) 25%, transparent); }
+  .stage .body { padding: 6px 0 18px; min-width: 0; }
+  .stage .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; cursor: pointer; }
+  .stage .head h4 { margin: 0; font-size: 15px; }
+  .stage .head .bar { max-width: 160px; }
+  .stage .head .cnt { font: 12px var(--nx-font-num); color: var(--nx-text-2); }
+  .stage .more { display: none; margin-top: 8px; }
+  .stage.open .more { display: block; }
+  .btnlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 4px 12px; margin: 6px 0; }
+  .btnlist div { font-size: 13px; display: flex; gap: 6px; align-items: baseline; }
+  .btnlist .mk { width: 16px; flex: none; text-align: center; color: var(--nx-text-2); }
+  .btnlist .ok .mk { color: var(--nx-success); } .btnlist .now { font-weight: 600; } .btnlist .now .mk { color: var(--nx-accent); }
+  .checklist { border-left: 3px solid var(--nx-success); padding: 6px 10px; background: var(--nx-bg-surface-alt); border-radius: 0 6px 6px 0; font-size: 13px; }
+  .checklist div::before { content: "☐ "; color: var(--nx-text-2); }
+  .stage.done .checklist div::before { content: "☑ "; color: var(--nx-success); }
+  .pill { font: 11px var(--nx-font-num); border: 1px solid var(--nx-border-strong); border-radius: 99px; padding: 0 8px; cursor: pointer; }
+
+  /* map table */
+  .mtwrap { overflow-x: auto; }
+  table.mt { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px; }
+  table.mt th { text-align: left; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--nx-text-2); font-weight: 600;
+                padding: 8px 10px; border-bottom: 2px solid var(--nx-border-strong); position: sticky; top: 0; background: var(--nx-bg-surface); }
+  table.mt td { padding: 8px 10px; border-bottom: 1px solid var(--nx-border); vertical-align: top; }
+  table.mt tr.grp td { background: var(--nx-bg-surface-alt); font-weight: 600; padding: 6px 10px; }
+  table.mt td.st { white-space: nowrap; font: 12px var(--nx-font-num); width: 1%; }
+  table.mt .mk { display: inline-block; width: 16px; text-align: center; }
+  table.mt .ok .mk { color: var(--nx-success); } table.mt .now .mk { color: var(--nx-accent); } table.mt .todo .mk { color: var(--nx-text-2); }
+  table.mt .f { display: block; font: 12px var(--nx-font-num); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; color: var(--nx-text); overflow-wrap: anywhere; }
+  table.mt .f:hover { color: var(--nx-accent); }
+  table.mt .kw { display: inline-block; font: 12px var(--nx-font-num); background: var(--nx-bg-surface-alt); border: 1px solid var(--nx-border); border-radius: 4px;
+                 padding: 0 6px; margin: 0 4px 4px 0; cursor: copy; }
+  table.mt .kw.copied { border-color: var(--nx-success); color: var(--nx-success); }
+  table.mt mark { background: color-mix(in srgb, var(--nx-accent) 30%, transparent); color: inherit; border-radius: 2px; }
+
+  @media (max-width: 760px) {
+    .explorer { grid-template-columns: 1fr; }
+    .detail { position: static; }
+    .mm { height: 60vh; }
+    .mm .hint { display: none; }
+    header.top h1 { flex-basis: 100%; order: 3; }
+  }
+</style>
+</head>
+<body class="general">
+<div class="wrap">
+  <header class="top">
+    <svg viewBox="0 0 264 36" aria-label="NEXAR">
+      <defs>
+        <linearGradient id="dm-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".42"/><stop offset="55%" stop-color="#fff" stop-opacity=".86"/><stop offset="100%" stop-color="#fff" stop-opacity=".62"/></linearGradient>
+        <linearGradient id="dm-r" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity=".40"/><stop offset="55%" stop-color="#fff" stop-opacity=".84"/><stop offset="100%" stop-color="#fff" stop-opacity=".64"/></linearGradient>
+        <mask id="dm-ml" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#dm-l)"/></mask>
+        <mask id="dm-mr" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#dm-r)"/></mask>
+      </defs>
+      <g transform="translate(-2 2) scale(.335)" fill="currentColor">
+        <path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#dm-ml)"/>
+        <path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#dm-mr)"/>
+        <path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z"/>
+      </g>
+      <line x1="48" y1="5" x2="48" y2="31" stroke="currentColor" stroke-opacity=".26" stroke-width="1"/>
+      <g transform="translate(62 7.5) scale(.81)" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round">
+        <path d="M3 21.5V4.8L26.5 21.2V4.5"/><path d="M54 5h25M54 13h25M54 21h25"/><path d="M106 4.8L131 21.2M131 4.8L106 21.2"/>
+      </g>
+      <g transform="translate(62 7.5) scale(.81)" fill="none" stroke="var(--nx-ar-ink, #F5C518)" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round">
+        <path d="M157.5 21.5L171 4.8L184.5 21.5M163 16.2h16"/><path d="M212.5 21.5V5h16.5a4.6 4.6 0 0 1 0 9.2h-16.5M227.5 14.2L238.5 21.5"/>
+      </g>
+    </svg>
+    <h1>Directory Manual: คู่มือการจัดเรียงโฟลเดอร์</h1>
+    <div class="seg" id="mode">
+      <button data-m="general" class="on">มุมมองทั่วไป</button>
+      <button data-m="dev">มุมมอง Dev</button>
+    </div>
+    <button class="btn" id="theme">Light theme</button>
+  </header>
+
+  <div class="note">🔒 <b>คู่มือนี้ห้ามลบ</b> ต้นไม้โฟลเดอร์และชั้นของโค้ดสร้างจากของจริงบนเครื่องโดย dirmap.py คำอธิบายมาจาก descriptions.yaml · อัปเดตล่าสุด <b id="updated">-</b>
+    <span class="dev-only"><br>อัปเดต: <span class="mono">python tools/dirmap.py</span></span></div>
+  <div id="warn"></div>
+
+  <nav class="tabs" id="tabs">
+    <button data-t="map" class="on">แผนที่โฟลเดอร์</button>
+    <button data-t="layers">ชั้นของโค้ด</button>
+    <button data-t="mtable">Map Table (หาไฟล์)</button>
+    <button data-t="road">แผนงาน</button>
+    <button data-t="mech">กลไก</button>
+    <button data-t="prop">ข้อเสนอ (ก่อนเขียนโค้ด)</button>
+    <button data-t="tasks">อยากทำ... ไปที่ไหน</button>
+    <button data-t="rules">กฎ</button>
+    <button data-t="glossary">ศัพท์</button>
+  </nav>
+
+  <section id="s-road">
+    <h2>แผนงาน: เชื่อม NEXAR เข้าสู่ระบบ NEX</h2>
+    <p class="lead">เรียงตามลำดับที่ต้องทำ · ทำเสร็จแล้วเช็คผ่านจึงได้ ✓ · กดหัวข้อเพื่อดูรายการทั้งหมด</p>
+    <div class="rm-sum" id="rm-sum"></div>
+    <div id="roadmap"></div>
+  </section>
+
+  <section id="s-map" class="on">
+    <h2>แผนที่โฟลเดอร์ (Mind map)</h2>
+    <p class="lead">เริ่มที่ <b>NEXAR</b> ด้านซ้าย จัดโครงสร้างเหมือน <b>NEXBIM</b> · แต่ละกิ่งคือโฟลเดอร์ และกิ่งเดียวกันใช้สีเดียวกัน ·
+      กดกล่องเพื่อกางกิ่งและอ่านคำอธิบายด้านขวา · กดวงกลม <b>+ / −</b> เพื่อกาง/หุบ · ลากพื้นหลังเพื่อเลื่อน · scroll เพื่อซูม
+      <span class="dev-only">(มุมมอง Dev แสดงรายละเอียดทางเทคนิคเพิ่ม)</span></p>
+    <div class="mmbar">
+      <input class="search" id="search" type="search" placeholder="ค้นหาโฟลเดอร์ / ไฟล์ / คำอธิบาย">
+      <button class="btn" id="mm-l1">ชั้นแรก</button>
+      <button class="btn" id="mm-all">กางทั้งหมด</button>
+      <button class="btn" id="mm-fit">พอดีจอ</button>
+    </div>
+    <div class="explorer">
+      <div class="panel mm" id="mm">
+        <svg id="mmsvg" role="img" aria-label="Mind map ของโฟลเดอร์ NEXAR"><g id="mmg"></g></svg>
+        <div class="zoom"><button class="btn" data-z="1.25" aria-label="ซูมเข้า">+</button><button class="btn" data-z="0.8" aria-label="ซูมออก">−</button></div>
+        <div class="hint">ลากเพื่อเลื่อน · scroll เพื่อซูม</div>
+      </div>
+      <div class="panel detail" id="detail"></div>
+    </div>
+    <div class="legend">
+      <span>กรอบเส้นทึบ = ใช้งานแล้ว</span>
+      <span class="badge planned">กรอบเส้นประ = วางแผนไว้</span>
+      <span class="badge gen">⚙ สร้างอัตโนมัติ ห้ามแก้มือ</span>
+      <span class="badge lock">🔒 ห้ามลบ</span>
+      <span class="badge miss">ยังไม่มีคำอธิบาย</span>
+    </div>
+  </section>
+
+  <section id="s-mtable">
+    <h2>Map Table: อยากแก้เรื่องไหน เปิดไฟล์ไหน</h2>
+    <p class="lead">ตารางหาไฟล์เร็ว · <b>โค้ดหลัก (JS)</b> = ไฟล์ที่ทำงานจริง · <b>ไฟล์ตั้งค่า / เอกสาร</b> = ค่าตั้งต้นและคู่มือ · กดชื่อไฟล์เพื่อเปิดในแผนที่</p>
+    <div class="mmbar">
+      <input class="search" id="mt-q" type="search" placeholder="ค้นหา เช่น BCF, QR, AR, IFC, Walk, Camera">
+    </div>
+    <div class="pfilter" id="mt-f"></div>
+    <div class="panel mtwrap"><table class="mt" id="mt"></table></div>
+    <div class="legend"><span>✓ เสร็จและเช็คแล้ว</span><span>▶ กำลังทำ / รอเช็ค</span><span>○ ยังไม่เริ่ม</span></div>
+  </section>
+
+  <section id="s-layers">
+    <h2>ชั้นของโค้ด (Layers)</h2>
+    <p class="lead">อ่านจากคำสั่ง <span class="mono">import</span> ในโค้ดจริง · ชั้นบนเรียกใช้ชั้นล่างได้ ชั้นล่าง (<span class="mono">Core</span>) ห้ามเรียก <span class="mono">Exporters</span> หรือ <span class="mono">App</span> · กดที่ชั้นเพื่อดูความสัมพันธ์</p>
+    <div class="legend">
+      <span><i style="border-color:var(--nx-accent)"></i>ชั้นที่เลือก</span>
+      <span><i style="border-color:var(--nx-success)"></i>ชั้นที่มันเรียกใช้ได้</span>
+      <span><i style="border-color:var(--nx-selection)"></i>ชั้นที่เรียกใช้มัน (อาจได้รับผลถ้าแก้)</span>
+      <span><i style="border-color:var(--nx-border-strong);border-style:dashed"></i>วางแผนไว้</span>
+    </div>
+    <div class="layers" id="layers"></div>
+    <div class="explain" id="explain">กดที่ชั้นใดก็ได้</div>
+  </section>
+
+  <section id="s-mech">
+    <h2>กลไกการทำงาน (Mechanisms)</h2>
+    <p class="lead">กลไกหลักของ NEXAR ทั้งฝั่ง 3D / AR / พิกัด และการเชื่อมกับ NEXBIM / Revit</p>
+    <div class="legend"><span class="badge done">ทำแล้ว</span><span class="badge gen">ทำบางส่วน</span><span class="badge planned">ยังไม่เริ่ม</span></div>
+    <div class="cards" id="mech"></div>
+  </section>
+
+  <section id="s-prop">
+    <h2>ข้อเสนอ: ออกแบบก่อนเขียนโค้ด</h2>
+    <p class="lead">ขั้นตอน: <b>ข้อเสนอ</b> → คุณปรับ Architecture / ตอบคำถาม ❓ → <b>อนุมัติ</b> → <b>กำลังทำ</b> → <b>เสร็จ</b> ·
+      ไอเดียบางข้อได้แรงบันดาลใจจากโปรแกรมอื่น (เช่น ConstructCraft) แต่ใช้แค่แนวคิด ออกแบบและเขียนเองทั้งหมด ไม่คัดลอกโค้ด</p>
+    <div class="pfilter" id="pfilter"></div>
+    <div id="props"></div>
+  </section>
+
+  <section id="s-tasks">
+    <h2>อยากทำ... ไปที่ไหน</h2>
+    <p class="lead">งานที่ทำบ่อย พร้อมขั้นตอนและโฟลเดอร์ที่ต้องไป กดชื่อโฟลเดอร์เพื่อเปิดในแผนที่</p>
+    <div class="cards" id="tasks"></div>
+  </section>
+
+  <section id="s-rules">
+    <h2>กฎของการจัดเรียง</h2>
+    <p class="lead">กฎที่ทำให้แก้จุดหนึ่งแล้วไม่กระทบจุดอื่น</p>
+    <div class="panel" style="padding:4px 16px" id="rules"></div>
+  </section>
+
+  <section id="s-glossary">
+    <h2>ศัพท์</h2>
+    <p class="lead">ศัพท์ dev ที่เจอในโปรเจกต์นี้ พร้อมเทียบกับสิ่งที่คุ้นเคยใน Revit</p>
+    <div class="panel"><table class="gl" id="glossary"></table></div>
+  </section>
+</div>
+
+<script src="manual.data.js"></script>
+<script>
+var M = window.NEXAR_MANUAL;
+var ICON = {
+  folder: '<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1.5 4.5v8h13v-7H7.5l-1.5-1.5h-4.5z"/></svg>',
+  file: '<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3.5 1.5h6l3 3v10h-9z M9.5 1.5v3h3"/></svg>'
+};
+var STATUS = { done: ['done', 'ใช้งานแล้ว'], planned: ['planned', 'วางแผนไว้'], gen: ['gen', 'สร้างอัตโนมัติ'], lock: ['lock', 'ห้ามลบ'] };
+var open = {}, selected = 'Nexar', byPath = {};
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function isFolder(n) { return !!(n.c || n.dir); }
+function badges(n) {
+  var b = STATUS[n.s || 'done'];
+  return (b && n.s && n.s !== 'done' ? '<span class="badge ' + b[0] + '">' + b[1] + '</span>' : '') +
+         (n.miss ? '<span class="badge miss">ยังไม่มีคำอธิบาย</span>' : '');
+}
+
+/* ---------- map ---------- */
+function matches(n, q) {
+  if (!q) return true;
+  var txt = (n.n + ' ' + (n.p || '') + ' ' + (n.d || '') + ' ' + (n.r || '')).toLowerCase();
+  return txt.indexOf(q) >= 0 || (n.c || []).some(function (k) { return matches(k, q); });
+}
+/* Mind map: วางกล่องเป็นคอลัมน์ตามความลึก (ซ้าย → ขวา) แม่อยู่กึ่งกลางของลูก
+   สีกิ่ง = โฟลเดอร์ชั้นแรกที่มันอยู่ · ข้อมูลเดียวกับเดิม (manual.data.js) แค่เปลี่ยนวิธีแสดง */
+var VIEW = { k: 1, x: 40, y: 0 }, laid = [], needFit = true, PAL = 8;
+var mctx = document.createElement('canvas').getContext('2d');
+var uiFont = getComputedStyle(document.body).fontFamily;
+function textW(s, font) { mctx.font = font; return mctx.measureText(s).width; }
+function short(s, max) { s = String(s || ''); return s.length > max ? s.slice(0, max - 1).trim() + '…' : s; }
+function query() { return document.getElementById('search').value.trim().toLowerCase(); }
+function selfHit(n, q) { return q && (n.n + ' ' + (n.p || '') + ' ' + (n.d || '') + ' ' + (n.r || '')).toLowerCase().indexOf(q) >= 0; }
+function kidsOf(n, q) { return n.c && n.c.length && (q || open[n.path]) ? n.c.filter(function (k) { return matches(k, q); }) : []; }
+
+function layout() {
+  var q = query(), colW = [], rows = [];
+  // 1) วัดขนาดกล่องของทุกกล่องที่มองเห็น
+  (function measure(n, depth, branch) {
+    var nm = (n.s === 'lock' ? '🔒 ' : n.s === 'gen' ? '⚙ ' : '') + n.n;
+    var ds = short(n.p || (n.miss ? 'ยังไม่มีคำอธิบาย' : ''), depth === 0 ? 40 : 34);
+    var w = Math.min(280, Math.max(textW(nm, '600 13px ' + uiFont), ds ? textW(ds, '11.5px ' + uiFont) : 0) + 24 + (n.c && n.c.length ? 10 : 0));
+    var item = { n: n, depth: depth, branch: branch, nm: nm, ds: ds, w: Math.max(w, 70), h: ds ? 44 : 28, kids: [] };
+    colW[depth] = Math.max(colW[depth] || 0, item.w);
+    rows.push(item);
+    kidsOf(n, q).forEach(function (k, i) { item.kids.push(measure(k, depth + 1, depth === 0 ? i % PAL + 1 : branch)); });
+    return item;
+  })(M.tree, 0, 0);
+  // 2) ตำแหน่ง x ตามคอลัมน์, y ไล่ลงจากใบ แม่อยู่กลางลูก
+  var colX = [0]; for (var i = 1; i < colW.length; i++) colX[i] = colX[i - 1] + colW[i - 1] + 64;
+  var cursor = 0;
+  (function place(it) {
+    it.x = colX[it.depth];
+    if (!it.kids.length) { it.cy = cursor + it.h / 2; cursor += it.h + 12; }
+    else { it.kids.forEach(place); it.cy = (it.kids[0].cy + it.kids[it.kids.length - 1].cy) / 2; if (it.depth === 0) cursor += 0; }
+    if (it.depth === 1) cursor += 10; // เว้นระยะระหว่างกิ่งหลัก
+  })(rows[0]);
+  laid = rows;
+  return rows[0];
+}
+
+function renderTree() {
+  if (!M) return;
+  var q = query(), root = layout(), links = '', nodes = '';
+  laid.forEach(function (it) {
+    var col = it.depth === 0 ? 'var(--nx-accent)' : 'var(--mm-' + it.branch + ')';
+    it.kids.forEach(function (k) {
+      var x1 = it.x + it.w + (it.n.c && it.n.c.length ? 9 : 0), y1 = it.cy, x2 = k.x, y2 = k.cy, mx = (x1 + x2) / 2;
+      links += '<path class="ln" style="stroke:var(--mm-' + k.branch + ')" d="M' + x1 + ' ' + y1 + 'C' + mx + ' ' + y1 + ' ' + mx + ' ' + y2 + ' ' + x2 + ' ' + y2 + '"/>';
+    });
+    var n = it.n, top = it.cy - it.h / 2, has = n.c && n.c.length, isOpen = has && (q || open[n.path]);
+    var cls = 'nd' + (it.depth === 0 ? ' root' : '') + (n.s === 'planned' ? ' planned' : '') + (selected === n.path ? ' sel' : '') + (selfHit(n, q) ? ' hit' : '');
+    nodes += '<g class="' + cls + '" data-p="' + esc(n.path) + '"><title>' + esc(n.path) + '</title>' +
+      '<rect class="box" x="' + it.x + '" y="' + top + '" width="' + it.w + '" height="' + it.h + '" rx="9" style="stroke:' + col + '"/>' +
+      '<text class="nm" x="' + (it.x + 12) + '" y="' + (top + (it.ds ? 18 : 18.5)) + '">' + esc(it.nm) + '</text>' +
+      (it.ds ? '<text class="ds" x="' + (it.x + 12) + '" y="' + (top + 35) + '">' + esc(it.ds) + '</text>' : '') +
+      (has ? '<g class="tg" data-tg="1"><circle cx="' + (it.x + it.w) + '" cy="' + it.cy + '" r="9" style="stroke:' + col + '"/>' +
+        '<text x="' + (it.x + it.w) + '" y="' + it.cy + '" style="fill:' + col + '">' + (isOpen ? '−' : n.c.length) + '</text></g>' : '') +
+      '</g>';
+  });
+  document.getElementById('mmg').innerHTML = links + nodes;
+  applyView();
+}
+function applyView() { document.getElementById('mmg').setAttribute('transform', 'translate(' + VIEW.x + ' ' + VIEW.y + ') scale(' + VIEW.k + ')'); }
+function fitView() {
+  var svg = document.getElementById('mmsvg'), W = svg.clientWidth, H = svg.clientHeight;
+  if (!W || !laid.length) { needFit = true; return; }
+  var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  laid.forEach(function (it) { x0 = Math.min(x0, it.x); x1 = Math.max(x1, it.x + it.w + 12); y0 = Math.min(y0, it.cy - it.h / 2); y1 = Math.max(y1, it.cy + it.h / 2); });
+  var k = Math.min(1.1, (W - 48) / (x1 - x0), (H - 48) / (y1 - y0));
+  if (k >= 0.6) { // พอดีจอได้โดยตัวหนังสือยังอ่านออก
+    VIEW.k = k; VIEW.x = (W - (x1 - x0) * k) / 2 - x0 * k; VIEW.y = (H - (y1 - y0) * k) / 2 - y0 * k;
+  } else {        // ใหญ่เกินจอ: ไม่ย่อจนอ่านไม่ออก ให้ NEXBIM อยู่ซ้ายกลางจอ แล้วลาก/ซูมดูต่อ
+    var r = laid[0]; VIEW.k = 0.6; VIEW.x = 16 - r.x * 0.6; VIEW.y = H / 2 - r.cy * 0.6;
+  }
+  needFit = false; applyView();
+}
+function centerOn(path) {
+  var svg = document.getElementById('mmsvg'), W = svg.clientWidth, H = svg.clientHeight, it = null;
+  laid.forEach(function (x) { if (x.n.path === path) it = x; });
+  if (!it || !W) return;
+  var sx = (it.x + it.w / 2) * VIEW.k + VIEW.x, sy = it.cy * VIEW.k + VIEW.y;
+  if (sx > 40 && sx < W - 40 && sy > 30 && sy < H - 30) return; // เห็นอยู่แล้ว ไม่ต้องเลื่อน
+  VIEW.x = W * 0.4 - (it.x + it.w / 2) * VIEW.k; VIEW.y = H / 2 - it.cy * VIEW.k; applyView();
+}
+function zoomAt(f, cx, cy) {
+  var k = Math.max(0.2, Math.min(2.5, VIEW.k * f)); f = k / VIEW.k;
+  VIEW.x = cx - (cx - VIEW.x) * f; VIEW.y = cy - (cy - VIEW.y) * f; VIEW.k = k; applyView();
+}
+function renderDetail() {
+  var n = byPath[selected]; if (!n) return;
+  var h = '<div class="path">' + esc(n.path.replace(/\//g, ' / ')) + '</div>' +
+    '<h3>' + (isFolder(n) ? ICON.folder : ICON.file) + esc(n.n) + badges(n) + '</h3>' +
+    '<div>' + (n.p ? esc(n.p) : '<span class="dim">' + (n.miss ? 'ยังไม่มีคำอธิบาย: เพิ่มใน DirectoryManual/descriptions.yaml' : 'ไฟล์ทั่วไป') + '</span>') + '</div>';
+  if (n.r) h += '<div class="row"><div class="k">เทียบกับ Revit</div>' + esc(n.r) + '</div>';
+  if (n.e) h += '<div class="row"><div class="k">ใครแก้ / แก้ยังไง</div>' + esc(n.e) + '</div>';
+  if (n.d) h += '<div class="row dev dev-only"><div class="k">สำหรับ Dev</div><span class="mono">' + esc(n.d) + '</span></div>';
+  if (n.c && n.c.length) h += '<div class="row"><div class="k">ข้างในมี (' + n.c.length + ')</div><div class="kids">' +
+    n.c.map(function (k) { return '<span data-p="' + esc(k.path) + '">' + esc(k.n) + '</span>'; }).join('') + '</div></div>';
+  document.getElementById('detail').innerHTML = h;
+}
+function select(path, center) {
+  selected = path;
+  var parts = path.split('/'); for (var i = 1; i < parts.length; i++) open[parts.slice(0, i).join('/')] = true;
+  renderTree(); renderDetail();
+  if (center) centerOn(path);
+  try { localStorage.setItem('nxar-dm-sel', path); } catch (e) {}
+}
+
+/* ---------- layers ---------- */
+function layerById(id) { for (var i = 0; i < M.layers.length; i++) if (M.layers[i].id === id) return M.layers[i]; return null; }
+function closure(id, next) { var out = {}, stack = [id]; while (stack.length) next(stack.pop()).forEach(function (x) { if (!out[x]) { out[x] = 1; stack.push(x); } }); return out; }
+function renderLayers() {
+  document.getElementById('layers').innerHTML = M.layers.map(function (l) {
+    return '<div class="layer' + (l.planned ? ' planned' : '') + '" data-l="' + esc(l.id) + '"><div class="t">' + esc(l.t) +
+      (l.planned ? '<span class="badge planned">วางแผนไว้</span>' : '') + '</div><div class="d">' + esc(l.d) + '</div>' +
+      '<div class="pk dev-only"><span>' + esc(l.id) + '</span>' + (l.pk || []).map(function (p) { return '<span>' + esc(p) + '</span>'; }).join('') + '</div></div>';
+  }).join('');
+}
+
+/* ---------- boot ---------- */
+var root = document.documentElement, tbtn = document.getElementById('theme');
+function setTheme(t) { root.setAttribute('data-theme', t); tbtn.textContent = t === 'dark' ? 'Light theme' : 'Dark theme'; try { localStorage.setItem('nx-theme', t); } catch (e) {} }
+tbtn.onclick = function () { setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); };
+function setMode(m) {
+  document.body.className = m;
+  document.querySelectorAll('#mode button').forEach(function (b) { b.classList.toggle('on', b.dataset.m === m); });
+  try { localStorage.setItem('nxar-dm-mode', m); } catch (e) {}
+}
+document.getElementById('mode').onclick = function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.dataset.m); };
+function showTab(t) {
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); });
+  document.querySelectorAll('section').forEach(function (s) { s.classList.toggle('on', s.id === 's-' + t); });
+  if (t === 'map' && needFit && M) fitView();
+  try { localStorage.setItem('nxar-dm-tab', t); } catch (e) {}
+}
+document.getElementById('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) showTab(b.dataset.t); };
+try { var th = localStorage.getItem('nx-theme'); if (th) setTheme(th); var md = localStorage.getItem('nxar-dm-mode'); if (md) setMode(md); } catch (e) {}
+
+if (!M) {
+  document.getElementById('warn').innerHTML = '<div class="note err">ไม่พบ manual.data.js: รัน <span class="mono">python tools/dirmap.py</span> ที่โฟลเดอร์ Nexar</div>';
+} else {
+  (function index(n) { byPath[n.path] = n; (n.c || []).forEach(index); })(M.tree);
+  open['Nexar'] = true; // เริ่มแบบเห็นแค่ชั้นแรก อ่านง่ายที่สุด
+  document.getElementById('updated').textContent = M.updated;
+  if (M.warnings && M.warnings.length)
+    document.getElementById('warn').innerHTML = '<div class="note warn"><b>' + M.warnings.length + ' จุดที่ยังไม่ครบ</b> (เพิ่มใน descriptions.yaml แล้วรัน DirMap)<ul>' +
+      M.warnings.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
+
+  // --- mind map: กด / ลาก / ซูม ---
+  var svg = document.getElementById('mmsvg'), drag = null;
+  svg.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY, vx: VIEW.x, vy: VIEW.y, moved: false }; });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; svg.classList.add('drag'); }
+    if (drag.moved) { VIEW.x = drag.vx + dx; VIEW.y = drag.vy + dy; applyView(); }
+  });
+  window.addEventListener('pointerup', function () { if (drag && drag.moved) setTimeout(function () { drag = null; }, 0); else drag = null; svg.classList.remove('drag'); });
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault(); var r = svg.getBoundingClientRect();
+    zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  svg.addEventListener('click', function (e) {
+    if (drag && drag.moved) return;
+    var el = e.target.closest('[data-p]'); if (!el) return;
+    var p = el.dataset.p, n = byPath[p];
+    if (n.c && n.c.length) { if (e.target.closest('[data-tg]') || selected === p) open[p] = !open[p]; else open[p] = true; }
+    select(p);
+  });
+  document.querySelector('#mm .zoom').onclick = function (e) {
+    var b = e.target.closest('[data-z]'); if (b) zoomAt(+b.dataset.z, svg.clientWidth / 2, svg.clientHeight / 2);
+  };
+  document.getElementById('mm-fit').onclick = fitView;
+  document.getElementById('mm-l1').onclick = function () { open = { 'Nexar': true }; renderTree(); fitView(); };
+  document.getElementById('mm-all').onclick = function () { (function o(n) { if (n.c && n.c.length) { open[n.path] = true; n.c.forEach(o); } })(M.tree); renderTree(); fitView(); };
+  document.getElementById('detail').onclick = function (e) { var el = e.target.closest('[data-p]'); if (el) select(el.dataset.p, true); };
+  document.getElementById('search').oninput = function () { renderTree(); fitView(); };
+
+  renderLayers();
+  document.getElementById('layers').onclick = function (e) {
+    var el = e.target.closest('[data-l]'); if (!el) return;
+    var id = el.dataset.l, box = document.getElementById('layers');
+    var uses = closure(id, function (x) { var l = layerById(x); return l ? l.uses || [] : []; });
+    var usedBy = closure(id, function (x) { return M.layers.filter(function (l) { return (l.uses || []).indexOf(x) >= 0; }).map(function (l) { return l.id; }); });
+    box.classList.add('focus');
+    box.querySelectorAll('.layer').forEach(function (n) {
+      var k = n.dataset.l; n.classList.toggle('me', k === id); n.classList.toggle('uses', !!uses[k]); n.classList.toggle('usedby', !!usedBy[k]);
+    });
+    var names = function (o) { return Object.keys(o).map(function (k) { var l = layerById(k); return l ? l.t.split(':')[0] : k; }).join(', ') || 'ไม่มี'; };
+    var me = layerById(id);
+    document.getElementById('explain').innerHTML = '<b>' + esc(me.t) + '</b><br>เรียกใช้ได้: ' + esc(names(uses)) +
+      '<br>ถูกเรียกใช้โดย: ' + esc(names(usedBy)) +
+      '<br><span class="dim">ถ้าแก้ชั้นนี้ ชั้นสีน้ำเงินอาจได้รับผล ส่วนชั้นที่จางไม่เกี่ยวเลย</span>';
+  };
+
+  document.getElementById('tasks').innerHTML = M.tasks.map(function (t) {
+    return '<div class="card"><h4>' + esc(t.t) + '</h4><ol>' + (t.s || []).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
+      (t.cmd ? '<pre class="cmd">' + esc(t.cmd) + '</pre>' : '') +
+      '<div class="go" data-go="' + esc(t.go) + '">📂 ' + esc(t.go.replace(/^Nexar\/?/, '') || 'Nexar') + '</div></div>';
+  }).join('');
+  document.getElementById('tasks').onclick = function (e) {
+    var el = e.target.closest('[data-go]'); if (!el || !byPath[el.dataset.go]) return;
+    showTab('map'); select(el.dataset.go, true);
+  };
+  /* ---------- roadmap ---------- */
+  var RM = M.roadmap || [];
+  function mark(b) { return b.charAt(0) === '✓' ? 'ok' : b.charAt(0) === '▶' ? 'now' : ''; }
+  function strip(b) { return b.replace(/^[✓▶]\s*/, ''); }
+  var allB = RM.reduce(function (a, s) { return a.concat(s.b); }, []);
+  var doneB = allB.filter(function (b) { return mark(b) === 'ok'; }).length;
+  var cur = RM.filter(function (s) { return s.s === 'doing'; })[0] || RM.filter(function (s) { return s.s === 'todo'; })[0];
+  var pct = allB.length ? Math.round(doneB * 100 / allB.length) : 0;
+  document.getElementById('rm-sum').innerHTML =
+    '<div><div class="big">' + RM.filter(function (s) { return s.s === 'done'; }).length + ' / ' + RM.length + '</div><div class="dim">ขั้นที่เสร็จ</div></div>' +
+    '<div><div class="big">' + doneB + ' / ' + allB.length + '</div><div class="dim">ปุ่ม / งานที่เสร็จ</div></div>' +
+    '<div class="bar" title="' + pct + '%"><i style="width:' + pct + '%"></i></div>' +
+    (cur ? '<div><div class="dim">ตอนนี้อยู่ที่</div><b>' + esc(cur.id + ' · ' + cur.t) + '</b></div>' : '');
+  document.getElementById('roadmap').innerHTML = RM.map(function (s) {
+    var d = s.b.filter(function (b) { return mark(b) === 'ok'; }).length, p = Math.round(d * 100 / s.b.length);
+    var badge = s.s === 'done' ? '<span class="badge done">เสร็จ</span>' : s.s === 'doing' ? '<span class="badge gen">กำลังทำ</span>' : '<span class="badge planned">ยังไม่เริ่ม</span>';
+    return '<div class="stage ' + s.s + (s === cur ? ' open' : '') + '"><div class="num">' + esc(s.id.replace('S', '')) + '</div><div class="body">' +
+      '<div class="head"><h4>' + esc(s.t) + '</h4>' + badge + '<div class="bar"><i class="' + (s.s === 'doing' ? 'doing' : '') + '" style="width:' + p + '%"></i></div>' +
+      '<span class="cnt">' + d + '/' + s.b.length + '</span></div>' +
+      '<div class="more">' + (s.why ? '<div class="dim" style="font-size:13px">' + esc(s.why) + '</div>' : '') +
+      '<div class="btnlist">' + s.b.map(function (b) { var m = mark(b);
+        return '<div class="' + m + '"><span class="mk">' + (m === 'ok' ? '✓' : m === 'now' ? '▶' : '○') + '</span><span>' + esc(strip(b)) + '</span></div>'; }).join('') + '</div>' +
+      '<div class="k" style="font-size:11px;letter-spacing:.08em;color:var(--nx-text-2);font-weight:600;margin:8px 0 2px">เช็คก่อนไปขั้นต่อไป</div>' +
+      '<div class="checklist">' + s.check.map(function (c) { return '<div>' + esc(c) + '</div>'; }).join('') + '</div>' +
+      (s.props && s.props.length ? '<div style="margin-top:8px;font-size:12px" class="dim">ข้อเสนอที่เกี่ยว: ' + s.props.map(function (x) { return '<span class="pill" data-prop="' + esc(x) + '">' + esc(x) + '</span>'; }).join(' ') + '</div>' : '') +
+      '</div></div></div>';
+  }).join('');
+  document.getElementById('roadmap').onclick = function (e) {
+    var pr = e.target.closest('[data-prop]');
+    if (pr) { showTab('prop'); var el = [].filter.call(document.querySelectorAll('#props .pid'), function (x) { return x.textContent === pr.dataset.prop; })[0]; if (el) el.scrollIntoView({ block: 'center' }); return; }
+    var h = e.target.closest('.head'); if (h) h.parentNode.parentNode.classList.toggle('open');
+  };
+
+  /* ---------- Map Table ---------- */
+  var mtStage = '';
+  function stageOf(id) { return RM.filter(function (s) { return s.id === id; })[0]; }
+  function stageIdx(f) { var s = stageOf(f.st); return s ? RM.indexOf(s) : 1e6; }   /* เรียงตามแผนงาน · นอกแผนอยู่ท้าย */
+  var FM = (M.filemap || []).map(function (f, i) { return { f: f, i: i }; })
+    .sort(function (a, b) { return stageIdx(a.f) - stageIdx(b.f) || a.i - b.i; }).map(function (x) { return x.f; });
+  function rowMark(f) {
+    if (f.m) return f.m === '✓' ? 'ok' : 'now';
+    var s = stageOf(f.st); return !s ? 'todo' : s.s === 'done' ? 'ok' : s.s === 'doing' ? 'now' : 'todo';
+  }
+  function hl(text, q) {
+    var t = esc(text); if (!q) return t;
+    var i = text.toLowerCase().indexOf(q); if (i < 0) return t;
+    return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
+  }
+  function renderMapTable() {
+    var q = document.getElementById('mt-q').value.trim().toLowerCase();
+    var stages = []; FM.forEach(function (f) { var k = f.st || '-'; if (stages.indexOf(k) < 0) stages.push(k); });
+    document.getElementById('mt-f').innerHTML = [''].concat(stages).map(function (k) {
+      var n = FM.filter(function (f) { return !k || (f.st || '-') === k; }).length;
+      return '<button data-st="' + esc(k) + '" class="' + (mtStage === k ? 'on' : '') + '">' + (k === '' ? 'ทั้งหมด' : k === '-' ? 'นอกแผน' : esc(k)) + ' ' + n + '</button>';
+    }).join('');
+    var rows = FM.filter(function (f) {
+      if (mtStage && (f.st || '-') !== mtStage) return false;
+      if (!q) return true;
+      return [f.st, f.t].concat(f.core || [], f.cfg || [], f.proto || []).join(' ').toLowerCase().indexOf(q) >= 0;
+    });
+    var MK = { ok: '✓', now: '▶', todo: '○' }, last = null, h = '<thead><tr><th>ขั้น</th><th style="width:24%">เรื่อง / ฟีเจอร์</th><th style="width:36%">โค้ดหลัก (JS)</th><th style="width:20%">คำค้น / คำสั่ง</th><th>ไฟล์ตั้งค่า / เอกสาร</th></tr></thead><tbody>';
+    var files = function (list) { return (list || []).map(function (p) { return '<span class="f" data-go="' + esc(p) + '" title="เปิดในแผนที่">' + hl(p.replace(/^Nexar\//, ''), q) + '</span>'; }).join('') || '<span class="dim">–</span>'; };
+    rows.forEach(function (f) {
+      var k = f.st || '-';
+      if (k !== last) { var s = stageOf(f.st); h += '<tr class="grp"><td colspan="5">' + (k === '-' ? 'นอกแผนงาน' : esc(k + ' · ' + (s ? s.t : ''))) + '</td></tr>'; last = k; }
+      var m = rowMark(f);
+      h += '<tr class="' + m + '"><td class="st"><span class="mk">' + MK[m] + '</span>' + esc(k === '-' ? '' : k) + '</td><td>' + hl(f.t, q) + '</td>' +
+        '<td>' + files(f.core) + '</td>' +
+        '<td>' + ((f.proto || []).map(function (w) { return '<span class="kw" title="กดเพื่อคัดลอก">' + hl(w, q) + '</span>'; }).join('') || '<span class="dim">–</span>') + '</td>' +
+        '<td>' + files(f.cfg) + '</td></tr>';
+    });
+    if (!rows.length) h += '<tr><td colspan="5" class="dim">ไม่พบ ลองคำอื่น</td></tr>';
+    document.getElementById('mt').innerHTML = h + '</tbody>';
+  }
+  document.getElementById('mt-q').oninput = renderMapTable;
+  document.getElementById('mt-f').onclick = function (e) { var b = e.target.closest('[data-st]'); if (b) { mtStage = b.dataset.st; renderMapTable(); } };
+  document.getElementById('mt').onclick = function (e) {
+    var go = e.target.closest('[data-go]');
+    if (go) { if (byPath[go.dataset.go]) { showTab('map'); select(go.dataset.go, true); } return; }
+    var kw = e.target.closest('.kw'); if (!kw) return;
+    var done = function () { kw.classList.add('copied'); setTimeout(function () { kw.classList.remove('copied'); }, 900); };
+    try { navigator.clipboard.writeText(kw.textContent).then(done, done); } catch (err) { done(); }
+  };
+  renderMapTable();
+
+  var PS = { proposal:['planned', 'ข้อเสนอ'], approved: ['done', 'อนุมัติแล้ว'], building: ['gen', 'กำลังทำ'], done: ['lock', 'เสร็จ'], rejected: ['planned rej', 'ไม่ทำ'] };
+  var pf = '';
+  function renderProps() {
+    var list = (M.proposals || []);
+    document.getElementById('pfilter').innerHTML = [['', 'ทั้งหมด']].concat(Object.keys(PS).map(function (k) { return [k, PS[k][1]]; })).map(function (f) {
+      var n = list.filter(function (p) { return !f[0] || p.s === f[0]; }).length;
+      return '<button data-pf="' + f[0] + '" class="' + (pf === f[0] ? 'on' : '') + '">' + f[1] + ' ' + n + '</button>'; }).join('');
+    document.getElementById('props').innerHTML = list.filter(function (p) { return !pf || p.s === pf; }).map(function (p) {
+      var b = PS[p.s] || PS.proposal;
+      return '<div class="prop"><h4><span class="pid">' + esc(p.id) + '</span>' + esc(p.t) + '<span class="badge ' + b[0] + '">' + b[1] + '</span></h4>' +
+        (p.why ? '<div style="font-size:13px">' + esc(p.why) + '</div>' : '') +
+        '<div class="k">ออกแบบแบบ NEXAR</div><div style="font-size:13px">' + esc(p.design) + '</div>' +
+        (p.layer || p.where ? '<div class="k">อยู่ที่ไหน</div><div style="font-size:13px">' + esc(p.layer) + (p.where ? ' <span class="go" data-go="' + esc(p.where) + '">📂 ' + esc(p.where.replace(/^Nexar\/?/, '')) + '</span>' : '') + '</div>' : '') +
+        (p.steps && p.steps.length ? '<div class="k">ขั้นตอน</div><ol>' + p.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' : '') +
+        (p.ask && p.ask.length ? '<div class="k">คำถามให้คุณตัดสินใจ</div><div class="ask">' + p.ask.map(function (a) { return '<div>' + esc(a) + '</div>'; }).join('') + '</div>' : '') +
+        (p.depends && p.depends.length ? '<div class="k">ต้องทำหลัง</div>' + p.depends.map(function (d) { return '<span class="badge">' + esc(d) + '</span> '; }).join('') : '') +
+        (p.from ? '<div class="dim" style="font-size:11px;margin-top:10px">แนวคิดจาก: ' + esc(p.from) + '</div>' : '') + '</div>';
+    }).join('') || '<div class="dim">ไม่มีรายการ</div>';
+  }
+  document.getElementById('pfilter').onclick = function (e) { var b = e.target.closest('[data-pf]'); if (b) { pf = b.dataset.pf; renderProps(); } };
+  document.getElementById('props').onclick = function (e) { var el = e.target.closest('[data-go]'); if (!el || !byPath[el.dataset.go]) return; showTab('map'); select(el.dataset.go, true); };
+  renderProps();
+  var MS = { done: ['done', 'ทำแล้ว'], partial: ['gen', 'ทำบางส่วน'], todo: ['planned', 'ยังไม่เริ่ม'] };
+  document.getElementById('mech').innerHTML = (M.mechanisms || []).map(function (m, i) {
+    var b = MS[m.s] || MS.todo;
+    return '<div class="card"><h4>' + (i + 1) + '. ' + esc(m.t) + ' <span class="badge ' + b[0] + '">' + b[1] + '</span></h4>' +
+      '<div style="font-size:13px">' + esc(m.what) + '</div>' +
+      (m.revit ? '<div class="dim" style="font-size:12px;margin-top:6px">เทียบ Revit: ' + esc(m.revit) + '</div>' : '') +
+      (m.next ? '<div style="font-size:12px;margin-top:6px">💡 ' + esc(m.next) + '</div>' : '') +
+      (m.where ? '<div class="go" data-go="' + esc(m.where) + '">📂 ' + esc(m.where.replace(/^Nexar\/?/, '')) + '</div>' : '') + '</div>';
+  }).join('');
+  document.getElementById('mech').onclick = function (e) { var el = e.target.closest('[data-go]'); if (!el || !byPath[el.dataset.go]) return; showTab('map'); select(el.dataset.go, true); };
+  document.getElementById('rules').innerHTML = M.rules.map(function (r, i) {
+    return '<div class="rule"><div class="n">' + (i + 1) + '</div><div><b>' + esc(r.t) + '</b><span>' + esc(r.d) + '</span></div></div>';
+  }).join('');
+  document.getElementById('glossary').innerHTML = M.glossary.map(function (g) {
+    return '<tr><td>' + esc(g.k) + '</td><td>' + esc(g.v) + '</td><td class="dim">เทียบ Revit: ' + esc(g.r) + '</td></tr>';
+  }).join('');
+
+  try { var tb = localStorage.getItem('nxar-dm-tab'); if (tb) showTab(tb); var sl = localStorage.getItem('nxar-dm-sel'); if (sl && byPath[sl]) selected = sl; } catch (e) {}
+  select(selected);
+  fitView();
+  window.addEventListener('resize', function () { if (document.getElementById('s-map').classList.contains('on')) fitView(); });
+}
+</script>
+</body>
+</html>

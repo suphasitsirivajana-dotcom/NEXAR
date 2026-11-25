@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 36" role="img" aria-label="NEXAR">
+  <!-- 04. Premium Tech Horizontal Lockup: Metallic Ribbon N | NEX (silver-white) + AR (Site Yellow) -->
+  <defs>
+    <linearGradient id="nxh-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".42"/><stop offset="55%" stop-color="#fff" stop-opacity=".86"/><stop offset="100%" stop-color="#fff" stop-opacity=".62"/></linearGradient>
+    <linearGradient id="nxh-r" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity=".40"/><stop offset="55%" stop-color="#fff" stop-opacity=".84"/><stop offset="100%" stop-color="#fff" stop-opacity=".64"/></linearGradient>
+    <mask id="mh-l" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxh-l)"/></mask>
+    <mask id="mh-r" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#nxh-r)"/></mask>
+  </defs>
+  <!-- Ribbon N -->
+  <g transform="translate(-2 2) scale(.335)" fill="currentColor">
+    <path d="M12 86V34C12 18 22 10 34 10h2L36 69 12 86Z" mask="url(#mh-l)"/>
+    <path d="M84 27L108 10v52c0 16-10 24-22 24h-2V27Z" mask="url(#mh-r)"/>
+    <path d="M24 14C30 9 39 10 47 16L96 66C101 71 100 80 93 84 86 88 78 86 72 80L24 30C18 24 18 18 24 14Z"/>
+  </g>
+  <!-- Subtle hairline vertical divider -->
+  <line x1="48" y1="5" x2="48" y2="31" stroke="currentColor" stroke-opacity=".26" stroke-width="1"/>
+  <!-- NEX (silver-white) -->
+  <g transform="translate(62 7.5) scale(.81)" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round">
+    <path d="M3 21.5V4.8L26.5 21.2V4.5"/>
+    <path d="M54 5h25M54 13h25M54 21h25"/>
+    <path d="M106 4.8L131 21.2M131 4.8L106 21.2"/>
+  </g>
+  <!-- AR (Site Yellow) -->
+  <g transform="translate(62 7.5) scale(.81)" fill="none" stroke="var(--nx-ar-ink, #F5C518)" stroke-width="2.7" stroke-linecap="square" stroke-linejoin="round">
+    <path d="M157.5 21.5L171 4.8L184.5 21.5M163 16.2h16"/>
+    <path d="M212.5 21.5V5h16.5a4.6 4.6 0 0 1 0 9.2h-16.5M227.5 14.2L238.5 21.5"/>
+  </g>
+</svg>

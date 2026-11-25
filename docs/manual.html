@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NEXAR Manual</title>
+<meta name="description" content="คู่มือการใช้งาน NEXAR — ดูโมเดล BIM, มาร์คคอมเมนต์, ซ้อนโมเดลในกล้อง, ส่งออก HTML / IFC / BCF">
+<link rel="icon" href="../brand/icons/icon.svg">
+<style>
+:root{--bg:#0E0E10;--sf:#161618;--sf2:#1F1F22;--ln:#2A2A2E;--tx:#F4F4F5;--mu:#9E9EA3;--ac:#D8AF30;--ac2:#DFB73A;--warn:#E0A43A}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.7 system-ui,-apple-system,"Segoe UI","Noto Sans Thai",Roboto,sans-serif}
+a{color:var(--ac2)}
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1180px;margin:0 auto}
+nav{position:sticky;top:0;height:100vh;overflow:auto;padding:22px 14px;border-right:1px solid var(--ln)}
+nav .logo{font-weight:700;font-size:18px;margin:0 6px 2px}nav .logo b{color:var(--ac2)}
+nav .ver{color:var(--mu);font-size:12px;margin:0 6px 16px}
+nav input{width:100%;background:var(--sf);border:1px solid var(--ln);border-radius:9px;color:var(--tx);padding:7px 10px;font:inherit;margin-bottom:10px}
+nav a{display:block;padding:5px 8px;border-radius:7px;color:var(--mu);text-decoration:none;font-size:14px}
+nav a:hover,nav a.on{background:var(--sf2);color:var(--tx)}
+main{padding:28px 32px 80px;min-width:0}
+h1{font-size:28px;margin:0 0 4px}h1+p{color:var(--mu);margin-top:0}
+section{border-top:1px solid var(--ln);padding-top:10px;margin-top:30px}
+h2{font-size:21px;margin:14px 0 8px}h3{font-size:16px;margin:18px 0 6px;color:var(--ac2)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px 16px;margin:12px 0}
+.tip{border-left:3px solid var(--ac);background:#1b1810}.warn{border-left:3px solid var(--warn);background:#1a1712}
+.tip b:first-child,.warn b:first-child{color:var(--ac2)}
+kbd,.btn{display:inline-block;font:600 12.5px/1 system-ui,sans-serif;padding:4px 8px;border-radius:7px;border:1px solid var(--ln);background:var(--sf2);color:var(--tx);white-space:nowrap}
+.btn{border-color:#5a4b1f;color:#f5e3a4}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--ln);vertical-align:top}
+th{color:var(--mu);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+ol,ul{padding-left:22px}li{margin:3px 0}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:40px;margin:10px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:14px;background:var(--ac);color:#0E0E10;display:grid;place-items:center;font-weight:700;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.diagram{width:100%;height:auto;display:block}
+.chg h3{color:var(--tx)}
+.hide{display:none!important}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--ln)}main{padding:18px 16px 60px}.grid2{grid-template-columns:1fr}}
+@media print{nav{display:none}.wrap{display:block}body{background:#fff;color:#000}.card,.tip,.warn{background:#fff;border-color:#ccc}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav id="toc">
+  <div class="logo">NEX<b>AR</b> Manual</div>
+  <div class="ver">สำหรับ NEXAR <b>v2.6.0</b> · อัปเดต 25 พ.ย. 2026</div>
+  <input id="q" placeholder="ค้นหาในคู่มือ…" aria-label="Search the manual">
+  <a href="#start">เริ่มใช้งานใน 5 ขั้น</a>
+  <a href="#screen">หน้าจอมีอะไรบ้าง</a>
+  <a href="#nav">การเดิน / หมุนมุมมอง</a>
+  <a href="#mark">มาร์ค คอมเมนต์ ถ่ายภาพ</a>
+  <a href="#group">Group (ชุดภาพต่อกัน)</a>
+  <a href="#cam">ซ้อนโมเดลในกล้อง (CAM)</a>
+  <a href="#qr">QR ที่หน้างาน</a>
+  <a href="#export">ส่งออก (HTML / IFC / BCF)</a>
+  <a href="#revit">เปิดใน Revit</a>
+  <a href="#install">ติดตั้ง / อัปเดตแอป</a>
+  <a href="#faq">ปัญหาที่พบบ่อย</a>
+  <a href="#limits">ข้อจำกัดที่ต้องรู้</a>
+  <a href="#changelog">มีอะไรใหม่ (Changelog)</a>
+</nav>
+
+<main>
+<h1>คู่มือ NEXAR</h1>
+<p>ดูโมเดล BIM (IFC / DXF / GLB) บน iPad มือถือ หรือคอม แล้วมาร์คปัญหา ถ่ายภาพ และซ้อนโมเดลในภาพกล้องที่หน้างาน จากนั้นส่งผลกลับไปที่ Revit หรือส่งให้คนอื่นดู</p>
+
+<!-- ============================================================ -->
+<section id="start">
+<h2>เริ่มใช้งานใน 5 ขั้น</h2>
+<ol class="steps">
+  <li><b>เปิดโมเดล</b> แท็บ Home → <span class="btn">Open Model</span> → เลือกไฟล์ <span class="mono">.ifc</span> (จาก Revit: File → Export → IFC) ไฟล์จะถูกเก็บในเครื่อง ครั้งต่อไปไม่ต้องเปิดใหม่</li>
+  <li><b>ดูโมเดล</b> ใช้ <span class="btn">3D</span> หมุนดูรอบๆ, <span class="btn">Plan</span> ดูแบบแปลน, <span class="btn">Walk</span> เดินข้างใน (มีจอยซ้าย-ขวาให้)</li>
+  <li><b>มาร์คจุด</b> แท็บ Markup → <span class="btn">Comment</span> / <span class="btn">Note</span> / <span class="btn">Issue</span> แล้วแตะบนโมเดล → พิมพ์ข้อความ (แนบรูปได้)</li>
+  <li><b>ที่หน้างาน</b> เข้า <span class="btn">Walk</span> → กด <span class="btn">CAM</span> → <span class="btn">PLACE</span> หรือ <span class="btn">QR LOCK</span> ให้โมเดลซ้อนตรงกับของจริง → <span class="btn">Capture</span></li>
+  <li><b>ส่งออก</b> แท็บ Export → <span class="btn">Interactive HTML</span> (ส่งให้ใครดูก็ได้) หรือ <span class="btn">IFC + Marks</span> (เอาเข้า Revit เป็นวัตถุจริง)</li>
+</ol>
+<div class="card tip"><b>จำไว้:</b> ข้อมูลทั้งหมดอยู่ในเครื่องนั้น (ไม่มี cloud) ถ้าจะย้ายเครื่องให้ Export → <span class="btn">Project JSON</span> แล้ว Import JSON ที่อีกเครื่อง ไฟล์โมเดลต้องเปิดใหม่อีกครั้ง</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="screen">
+<h2>หน้าจอมีอะไรบ้าง</h2>
+<svg class="diagram" viewBox="0 0 800 420" role="img" aria-label="NEXAR screen layout">
+  <rect x="1" y="1" width="798" height="418" rx="14" fill="#0d1524" stroke="#1f2f4d"/>
+  <rect x="1" y="1" width="798" height="70" rx="14" fill="#121d31"/>
+  <text x="20" y="28" fill="#e6edf7" font-size="14" font-weight="700">Ribbon: Home · Markup · View · Export</text>
+  <text x="20" y="54" fill="#8ea0bb" font-size="12">ปุ่มคำสั่งทั้งหมด (เลื่อนซ้าย-ขวาได้ถ้าจอแคบ)</text>
+  <rect x="580" y="84" width="205" height="250" rx="10" fill="#121d31" stroke="#1f2f4d"/>
+  <text x="596" y="108" fill="#e6edf7" font-size="13" font-weight="700">Panel</text>
+  <text x="596" y="128" fill="#8ea0bb" font-size="12">Markups · Views · Info</text>
+  <text x="596" y="146" fill="#8ea0bb" font-size="12">รายการมาร์ค / มุมมอง</text>
+  <circle cx="300" cy="200" r="6" fill="none" stroke="#60a5fa" stroke-width="2"/>
+  <text x="314" y="205" fill="#8ea0bb" font-size="12">กากบาทกลางจอ (Mark จะวางตรงนี้)</text>
+  <circle cx="70" cy="350" r="40" fill="none" stroke="#3b82f6" stroke-width="2"/><text x="48" y="355" fill="#e6edf7" font-size="12">MOVE</text>
+  <rect x="122" y="318" width="34" height="30" rx="7" fill="#121d31" stroke="#3b82f6"/><text x="131" y="338" fill="#e6edf7" font-size="12">▲</text>
+  <rect x="122" y="354" width="34" height="30" rx="7" fill="#121d31" stroke="#3b82f6"/><text x="131" y="374" fill="#e6edf7" font-size="12">▼</text>
+  <circle cx="730" cy="370" r="40" fill="none" stroke="#3b82f6" stroke-width="2"/><text x="713" y="375" fill="#e6edf7" font-size="12">LOOK</text>
+  <rect x="640" y="342" width="56" height="22" rx="11" fill="#121d31" stroke="#3b82f6"/><text x="650" y="357" fill="#e6edf7" font-size="11">GYRO</text>
+  <rect x="640" y="312" width="56" height="22" rx="11" fill="#121d31" stroke="#3b82f6"/><text x="655" y="327" fill="#e6edf7" font-size="11">CAM</text>
+  <rect x="300" y="380" width="200" height="28" rx="14" fill="#121d31" stroke="#1f2f4d"/><text x="316" y="399" fill="#e6edf7" font-size="12">Capture · Mark · Group</text>
+  <text x="20" y="410" fill="#8ea0bb" font-size="11">จอย/ปุ่มด้านล่าง แสดงเฉพาะโหมด Walk</text>
+</svg>
+<table>
+<tr><th>แท็บ</th><th>ใช้ทำอะไร</th></tr>
+<tr><td><b>Home</b></td><td>New / Open Model / Projects / Save · เปลี่ยนโหมด 3D, Plan, Walk · Gyro · Home / Set Home / Fit · ปุ่มลัด Capture, Mark, Group, Save View</td></tr>
+<tr><td><b>Markup</b></td><td>สร้าง Comment, Note, Issue · แก้ไข Edit, Lock, Resolve, Delete · เปิด/ปิด Pins และรายการ List</td></tr>
+<tr><td><b>View</b></td><td>Save View / Views · X-Ray, Section (ตัดแปลน), Grid, Models · Create QR · Scope, Lock View</td></tr>
+<tr><td><b>Export</b></td><td>Interactive HTML, IFC + Marks · BCF · Project JSON, CSV · Settings, Revit Guide, Manual</td></tr>
+</table>
+</section>
+
+<!-- ============================================================ -->
+<section id="nav">
+<h2>การเดิน / หมุนมุมมอง</h2>
+<h3>3 โหมด</h3>
+<table>
+<tr><th>โหมด</th><th>นิ้ว / เมาส์</th></tr>
+<tr><td><span class="btn">3D</span></td><td>ลาก 1 นิ้ว = หมุนรอบ · 2 นิ้ว = เลื่อน · บีบ = ซูม (เมาส์: ซ้าย = หมุน, ขวา/กลาง = เลื่อน, ล้อ = ซูม) แบบเดียวกับ Revit</td></tr>
+<tr><td><span class="btn">Plan</span></td><td>มองจากด้านบน ลาก = เลื่อน, บีบ = ซูม · ใช้ <span class="btn">Section</span> เพื่อตัดเหลือชั้นเดียว</td></tr>
+<tr><td><span class="btn">Walk</span></td><td>เดินในโมเดลระดับสายตา (สูง 1.6 m) ด้วยจอย</td></tr>
+</table>
+<h3>ปุ่มในโหมด Walk</h3>
+<table>
+<tr><th>ปุ่ม</th><th>ทำอะไร</th></tr>
+<tr><td>จอย <b>MOVE</b> (ซ้ายล่าง)</td><td>เดินหน้า-ถอยหลัง-ซ้าย-ขวา ยิ่งดันไกลยิ่งเร็ว</td></tr>
+<tr><td><b>▲ ▼</b> (ข้างจอยซ้าย)</td><td>ลอยขึ้น / ลง (กดค้าง) · ปุ่มกลางเปลี่ยนความเร็วเดิน</td></tr>
+<tr><td>จอย <b>LOOK</b> (ขวาล่าง)</td><td>หันซ้าย-ขวา ก้ม-เงย</td></tr>
+<tr><td><span class="btn">GYRO</span></td><td>เปิดแล้ว <b>หันเครื่องเพื่อมองรอบตัว</b> เหมือนมองผ่านหน้าต่าง จอย LOOK ยังใช้หมุนซ้าย-ขวาได้ ปิดได้ทุกเมื่อ</td></tr>
+<tr><td><span class="btn">CAM</span></td><td>เปิดกล้องหลัง ซ้อนโมเดลในภาพจริง (ดู <a href="#cam">CAM</a>)</td></tr>
+</table>
+<div class="card"><b>คีย์บอร์ด (คอม):</b> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> เดิน · <kbd>Q</kbd>/<kbd>E</kbd> ลง/ขึ้น · <kbd>Shift</kbd> วิ่ง · ลากเมาส์ = หันมอง · <kbd>H</kbd> = Home</div>
+<h3>Home และ Scope</h3>
+<ul>
+<li><span class="btn">Set Home</span> บันทึกมุมปัจจุบันเป็นมุมเริ่มต้น · <span class="btn">Home</span> กลับมุมนั้น</li>
+<li><span class="btn">Scope</span> กันไม่ให้หลุดออกไปไกลจากโมเดล · <span class="btn">Lock View</span> ล็อกไม่ให้มุมขยับ (เวลาพิมพ์หรือยื่นให้คนอื่นดู)</li>
+<li>หลงทาง? กด <span class="btn">Fit</span> เพื่อดูทั้งโมเดล</li>
+</ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="mark">
+<h2>มาร์ค คอมเมนต์ ถ่ายภาพ</h2>
+<table>
+<tr><th>ปุ่ม</th><th>ใช้เมื่อ</th><th>วางตรงไหน</th></tr>
+<tr><td><span class="btn">Comment</span> <span class="btn">Note</span> <span class="btn">Issue</span></td><td>มาร์คปัญหาพร้อมข้อความ / รูป</td><td>แตะบนโมเดลจุดที่ต้องการ</td></tr>
+<tr><td><span class="btn">Mark</span></td><td>มาร์คเร็วๆ ตอนเดิน</td><td>ตรง <b>กากบาทกลางจอ</b></td></tr>
+<tr><td><span class="btn">Capture</span></td><td>ถ่ายภาพหน้าจอเก็บ (เข้า Group ที่เลือกอยู่)</td><td>ตรงกากบาทกลางจอ · ถ้าเปิด CAM จะได้ภาพโมเดลซ้อนภาพจริง + ภาพจริงอีก 1 รูป</td></tr>
+</table>
+<ul>
+<li>ถ้าแตะโดนชิ้นส่วน (ผนัง เสา ท่อ) มาร์คจะ <b>ผูกกับ element นั้น</b> (เก็บ IFC GUID) Revit / BCF จะชี้ไปที่ชิ้นนั้นได้</li>
+<li>เลือกมาร์ค: แตะหมุด หรือเลือกใน Panel → Markups แล้วใช้ <span class="btn">Edit</span> <span class="btn">Lock</span> <span class="btn">Resolve</span> <span class="btn">Delete</span></li>
+<li><span class="btn">Lock</span> = ห้ามแก้/ลบ (กันมือพลาด) · <span class="btn">Resolve</span> = แก้แล้ว (หมุดเปลี่ยนสี)</li>
+<li>มาร์คถูกบันทึกเป็น <b>พิกัดโมเดล</b> (เมตร, แกน Z ขึ้น) ไม่ใช่พิกัดหน้าจอ ส่งออกไปที่ไหนก็อยู่ตำแหน่งเดิม</li>
+</ul>
+</section>
+
+<section id="group">
+<h2>Group (ชุดภาพต่อกัน)</h2>
+<p>Group ใช้รวมภาพ/มาร์คเป็นชุด เช่น "ตรวจชั้น 2 วันที่ 21" ภาพใน Group จะเรียงต่อกันตามลำดับที่ถ่าย</p>
+<ol>
+<li>กดชิป <span class="btn">Group</span> ด้านล่าง (หรือ Home → Group) → สร้าง/เลือก Group</li>
+<li>กด <span class="btn">Capture</span> หรือ <span class="btn">Mark</span> ทุกอันจะเข้า Group นั้นจนกว่าจะเปลี่ยน</li>
+<li>ตอนส่งออก Group จะติดไปด้วย: BCF = Label, IFC = IfcGroup "NEXAR: ชื่อกลุ่ม", HTML = แสดงในรายการ</li>
+</ol>
+</section>
+
+<!-- ============================================================ -->
+<section id="cam">
+<h2>ซ้อนโมเดลในกล้อง (CAM)</h2>
+<p>ใช้ดู "แบบ vs ของจริง" ที่หน้างาน: ภาพกล้องอยู่ด้านหลัง โมเดลซ้อนอยู่ด้านบนในสเกลจริง</p>
+<ol class="steps">
+  <li>เข้า <span class="btn">Walk</span> → กด <span class="btn">CAM</span> (ครั้งแรกเครื่องจะถามสิทธิ์กล้อง กด Allow) · เปิด <span class="btn">GYRO</span> ด้วย</li>
+  <li><b>ยืนที่จุดอ้างอิง</b> (เช่น มุมเสา) ตั้ง <b>HEIGHT</b> = ความสูงที่ถือเครื่อง (ปกติ 1.5–1.6 m)</li>
+  <li>กด <span class="btn">PLACE</span> แล้วแตะพื้นในภาพกล้องตรงจุดที่ควรเป็นกลางฐานโมเดล หรือใช้ <span class="btn">QR LOCK</span> ถ้ามีป้าย QR (แม่นกว่า)</li>
+  <li>หมุนให้ตรงด้วย <span class="btn">⟲ 5°</span> <span class="btn">⟳</span> (แตะ = 5°, กดค้าง = หมุนต่อเนื่อง)</li>
+  <li>ปรับ <b>FOV</b> จนขนาดโมเดลเท่าของจริง และ <b>MODEL</b> 0–100% (ความทึบของโมเดล)</li>
+  <li>กด <span class="btn">Capture</span> ได้ภาพโมเดลซ้อนภาพไซต์ + ภาพไซต์จริง เก็บเข้า Group</li>
+</ol>
+<table>
+<tr><th>ตัวปรับ</th><th>ความหมาย</th></tr>
+<tr><td><b>OVERLAY / SPLIT</b></td><td>OVERLAY = โมเดลซ้อนเต็มจอ · SPLIT = กล้องเล็กมุมขวาบน</td></tr>
+<tr><td><b>MODEL</b></td><td>0% = เห็นแต่ของจริง · 100% = เห็นแต่โมเดล</td></tr>
+<tr><td><b>FOV</b></td><td>มุมกว้างของเลนส์ ค่าเริ่ม 45° ถ้าโมเดลดูใหญ่/เล็กกว่าของจริงให้ปรับตัวนี้ (ตั้งครั้งเดียวต่อเครื่อง)</td></tr>
+<tr><td><b>HEIGHT</b></td><td>ความสูงกล้องจากพื้น ผิด 10 cm ก็ทำให้ระยะไกลเพี้ยนได้</td></tr>
+</table>
+<div class="card warn"><b>สำคัญ:</b> แอปบนเว็บรู้แค่ว่าเครื่อง <b>หมุน</b> ไปทางไหน แต่ไม่รู้ว่าคุณ <b>เดิน</b> ไปเท่าไร ยืนที่เดิมแล้วหันดูได้ตรงตลอด แต่ถ้าเดินไปจุดอื่นต้อง <b>PLACE / QR LOCK ใหม่</b> หรือดันจอย MOVE ตามระยะที่เดิน (ดู <a href="#limits">ข้อจำกัด</a>)</div>
+</section>
+
+<section id="qr">
+<h2>QR ที่หน้างาน</h2>
+<ol>
+<li>View → <span class="btn">Create QR</span> → แตะจุดบนโมเดลที่จะติดป้าย (เช่น หน้าเสา C3) → ทำตามขั้นตอนบนจอ (แนวติดพื้นหรือติดผนัง)</li>
+<li>พิมพ์แผ่น A4 แบบ <b>ขนาดจริง (100%, ห้าม fit to page)</b> ขนาดสี่เหลี่ยม QR ต้องเท่าที่ระบุบนแผ่น</li>
+<li>ติดแผ่นตรงจุดนั้นที่หน้างาน (ให้ช่างสำรวจวางตำแหน่งได้ยิ่งดี)</li>
+<li>ที่หน้างาน: Walk → CAM → <span class="btn">QR LOCK</span> → ส่องป้ายให้เห็นทั้งแผ่น ห่าง 1–2 m จนขึ้น ✓ โมเดลจะล็อกตำแหน่งและทิศให้เอง</li>
+</ol>
+<div class="card tip"><b>เคล็ดลับ:</b> ติด QR หลายแผ่น (ทุกโซน/ทุกชั้น) เดินถึงโซนไหนก็ QR LOCK ใหม่ จะได้ตรงเสมอ ทดสอบแล้วคลาดประมาณ 6 cm และ 2°</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="export">
+<h2>ส่งออก (Export)</h2>
+<table>
+<tr><th>ปุ่ม</th><th>ได้ไฟล์</th><th>เหมาะกับ</th></tr>
+<tr><td><span class="btn">Interactive HTML</span></td><td><span class="mono">ชื่อโปรเจกต์_NEXAR.html</span> ไฟล์เดียว รวมโมเดล + มาร์ค + รูป</td><td>ส่งให้เจ้าของงาน/ผู้รับเหมาเปิดดูในเบราว์เซอร์ได้เลย ไม่ต้องลงโปรแกรม (ต้องมีเน็ตครั้งแรกเพื่อโหลดตัวแสดงผล 3D)</td></tr>
+<tr><td><span class="btn">IFC + Marks</span></td><td><span class="mono">ชื่อโมเดล_NEXAR-marks.ifc</span></td><td>เอาเข้า Revit / Navisworks / Solibri ได้ <b>วัตถุจริง</b> ที่ตำแหน่งมาร์ค</td></tr>
+<tr><td><span class="btn">Export BCF</span></td><td><span class="mono">.bcfzip</span> (BCF 3.0)</td><td>ระบบ issue ของ BIM (NEXBIM, BIMcollab, Revizto, Solibri) มีมุมกล้อง + รูป</td></tr>
+<tr><td><span class="btn">Project JSON</span></td><td><span class="mono">.nexar.json</span></td><td>สำรอง/ย้ายเครื่อง, ใช้กับสคริปต์ Revit/Dynamo หรือแอป Unity ในอนาคต (ยังนำเข้าไฟล์ .sitear.json เดิมได้)</td></tr>
+<tr><td><span class="btn">CSV</span></td><td>ตาราง Excel</td><td>รายงานรายการมาร์คพร้อมพิกัด X Y Z</td></tr>
+</table>
+
+<h3 id="where">ไฟล์ที่ export ไปอยู่ไหน</h3>
+<table>
+<tr><th>เครื่อง</th><th>หลังกด export</th><th>หาไฟล์ที่</th></tr>
+<tr><td><b>iPad / iPhone</b></td><td>ขึ้นกล่อง <b>File ready</b> → กด <span class="btn">Save to Files</span> → เลือก <b>Save to Files</b> → เลือกโฟลเดอร์ → Save (หรือ AirDrop / Mail)</td><td>แอป <b>Files</b> → โฟลเดอร์ที่เลือก (เช่น On My iPad หรือ iCloud Drive)</td></tr>
+<tr><td><b>ส่งเข้า LINE / แชท</b></td><td>กด <span class="btn">Send as ZIP</span> → เลือก LINE (LINE ไม่รับไฟล์ .ifc / .html / .bcfzip ตรงๆ จะขึ้น "file types that can't be shared")</td><td>คนรับ: ดาวน์โหลด .zip แล้วแตกไฟล์ (คอม: คลิกขวา → Extract All · iPad: แตะไฟล์ zip ในแอป Files)</td></tr>
+<tr><td><b>Android</b></td><td>กล่อง File ready → <span class="btn">Save to Files</span> / <span class="btn">Send as ZIP</span> หรือ <span class="btn">Download</span></td><td>แอป Files → <b>Downloads</b></td></tr>
+<tr><td><b>คอม (Windows / Mac)</b></td><td>บันทึกอัตโนมัติ ขึ้นข้อความ "Saved to your Downloads folder"</td><td>โฟลเดอร์ <b>Downloads</b> (Windows: This PC → Downloads)</td></tr>
+</table>
+<div class="card tip"><b>ถ้ากล่องไม่มีปุ่ม Save to Files:</b> กด <span class="btn">Download</span> → ไฟล์จะไปที่แอป Files → Downloads ถ้าไฟล์ถูกเปิดขึ้นมาแทน ให้กดปุ่ม Share มุมบน → Save to Files</div>
+
+<h3>Interactive HTML ทำอะไรได้</h3>
+<ul>
+<li>หมุน/ซูมโมเดล แตะหมุดหมายเลขแล้วกล้องจะบินไปที่จุด พร้อมการ์ดรายละเอียด (ข้อความ สถานะ ผู้มาร์ค พิกัด รูป)</li>
+<li>ค้นหา และกรองตามประเภท ปุ่ม <b>Marks</b> (ซ่อน/แสดงหมุด) <b>X-Ray</b> <b>Model</b> <b>Fit</b></li>
+<li>ไฟล์ใหญ่ตามขนาดโมเดลและจำนวนรูป ถ้าเกิน ~25 MB อาจส่งทางแชทไม่ได้ ให้ใช้ Google Drive / OneDrive</li>
+</ul>
+
+<h3>IFC + Marks ทำอะไร</h3>
+<p>ทุกมาร์คกลายเป็นวัตถุเล็กๆ (ทรงกระบอก Ø150 mm) ใน IFC ตรงตำแหน่งที่มาร์ค <b>ไม่ต้องใช้ point cloud</b> เพราะตำแหน่งมาจากพิกัดโมเดลโดยตรง</p>
+<ul>
+<li>ถ้าเปิดโมเดล IFC ไว้ จะ <b>ต่อท้ายไฟล์ IFC เดิม</b> (หน่วย ชั้น และจุดอ้างอิงเดิม ข้อมูลเดิมไม่ถูกแก้) ใช้ได้ทั้ง IFC2X3 และ IFC4 ทั้งหน่วยเมตรและมิลลิเมตร</li>
+<li>ถ้าเปิดแค่ DXF/GLB จะได้ IFC4 ที่มีแต่มาร์ค ในพิกัดเดียวกับโมเดล</li>
+<li>ประเภท: <span class="mono">IfcBuildingElementProxy</span> (ใน Revit = Generic Model) อยู่ในชั้น (Storey) ที่ใกล้ที่สุดด้านล่างของจุด</li>
+</ul>
+<table>
+<tr><th>ข้อมูลในวัตถุ</th><th>ค่า</th></tr>
+<tr><td>Name</td><td><span class="mono">NAR-012 หัวข้อคอมเมนต์</span></td></tr>
+<tr><td>Description</td><td>ข้อความคอมเมนต์เต็ม</td></tr>
+<tr><td>Tag</td><td><span class="mono">NAR-012</span></td></tr>
+<tr><td>Property set <b>NEXAR_Markup</b></td><td>Number, Tag, Type, Title, Description, Status, Priority, Author, AssignedTo, Group, Created, Modified, X, Y, Z, HostElementGuid / HostElementName / HostIfcType (ถ้าผูกกับชิ้นส่วน), Photos, Replies, Locked, NEXAR_Id</td></tr>
+<tr><td>Group</td><td>IfcGroup "NEXAR markups" (ทุกอัน) และ "NEXAR: ชื่อกลุ่ม"</td></tr>
+<tr><td>สี</td><td>Comment / Note / Issue / Capture คนละเฉดน้ำเงิน</td></tr>
+</table>
+</section>
+
+<section id="revit">
+<h2>เปิดใน Revit</h2>
+<h3>แบบ IFC + Marks (แนะนำ)</h3>
+<ol>
+<li>Revit → <b>Insert → Link IFC</b> → เลือกไฟล์ <span class="mono">_NEXAR-marks.ifc</span> (หรือ File → Open → IFC)</li>
+<li>ถ้าโมเดลหลักใน Revit ใช้จุดอ้างอิงเดียวกับตอน export IFC ให้วางแบบ <b>Origin to Origin / Shared Coordinates</b> ตามที่ export มา</li>
+<li>คลิกหมุด (Generic Model) → Properties จะเห็น Name / Description และพารามิเตอร์จาก NEXAR_Markup (Title, Status, Author …)</li>
+<li>ทำ schedule หรือ filter ตาม Status / Type ได้ เพื่อติดตามงาน</li>
+</ol>
+<div class="card tip"><b>ถ้าไม่อยากได้ทั้งโมเดลซ้ำ:</b> ยังไม่มีปุ่ม export เฉพาะมาร์ค เมื่อมีโมเดล IFC เปิดอยู่ ให้ปิด (ซ่อน) โมเดล IFC ใน View → Models ก่อน export จะได้ไฟล์ที่มีแต่มาร์คแทน (ฟีเจอร์นี้อยู่ใน TODO)</div>
+<h3>แบบ BCF</h3>
+<p>ติดตั้ง add-in BCF (เช่น BIMcollab Zoom / BCF Manager) → Import <span class="mono">.bcfzip</span> → คลิก topic แล้ว Revit จะซูมไปที่ชิ้นส่วนนั้น</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="install">
+<h2>ติดตั้ง / อัปเดตแอป</h2>
+<h3>ติดตั้งบน iPad / มือถือ</h3>
+<ol>
+<li>เปิดลิงก์ GitHub Pages ของ NEXAR ใน Safari (iPad/iPhone) หรือ Chrome (Android)</li>
+<li>Safari: ปุ่ม Share → <b>Add to Home Screen</b> · Chrome: เมนู ⋮ → Install app</li>
+<li>เปิดจากไอคอนบนหน้าจอ ใช้ออฟไลน์ได้หลังเปิดครั้งแรก</li>
+</ol>
+<h3>อัปเดตเวอร์ชัน</h3>
+<ol>
+<li>อัปโหลด <b>ทั้งโฟลเดอร์ <span class="mono">Nexar</span></b> ขึ้น GitHub (แทนที่ไฟล์เดิมทั้งหมด)</li>
+<li>รอ 1–2 นาที แล้วเปิดแอป ดูมุมล่างว่าเลขเวอร์ชันตรงกับคู่มือนี้ (ตอนนี้ <b>v2.6.0</b>)</li>
+<li>ถ้ายังเป็นเลขเก่า: ปิดแอปให้หมดแล้วเปิดใหม่ หรือดึงหน้าจอลงเพื่อรีเฟรช</li>
+</ol>
+<div class="card"><b>บนคอม (ทดสอบ):</b> ดับเบิลคลิก <span class="mono">Start NEXAR.bat</span> ในโฟลเดอร์ <span class="mono">Nexar</span> แล้วเปิด <span class="mono">http://localhost:5173</span></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="faq">
+<h2>ปัญหาที่พบบ่อย</h2>
+<table>
+<tr><th>อาการ</th><th>แก้</th></tr>
+<tr><td>ปุ่ม/หน้าตาไม่เปลี่ยนหลังอัปเดต</td><td>เช็กเลขเวอร์ชันมุมล่าง · ปิดแอปแล้วเปิดใหม่ · Safari: Settings → Safari → Advanced → Website Data → ลบของเว็บนี้ (มาร์คจะหาย ให้ export JSON ก่อน)</td></tr>
+<tr><td>iPad เลือกไฟล์ IFC ไม่ได้</td><td>เก็บไฟล์ไว้ในแอป Files (On My iPad / iCloud Drive) ก่อน แล้วค่อยกด Open Model</td></tr>
+<tr><td>โมเดลไม่ขึ้น / หลุดจอ</td><td>กด <span class="btn">Fit</span> หรือ <span class="btn">Home</span></td></tr>
+<tr><td>CAM ขึ้นจอดำ</td><td>ยังไม่ได้อนุญาตกล้อง: iPad Settings → Safari → Camera → Allow · ต้องเปิดผ่าน https (GitHub Pages) เท่านั้น</td></tr>
+<tr><td>โมเดลในกล้องใหญ่/เล็กกว่าของจริง</td><td>ปรับ <b>FOV</b> ก่อน แล้วเช็ก <b>HEIGHT</b></td></tr>
+<tr><td>เดินแล้วโมเดลเลื่อนไม่ตรง</td><td>ปกติของเว็บแอป ให้ <span class="btn">PLACE</span> / <span class="btn">QR LOCK</span> ใหม่ที่จุดใหม่</td></tr>
+<tr><td>QR LOCK ไม่ติด</td><td>ส่องให้เห็นทั้งแผ่น ห่าง 1–2 m แสงพอ ไม่สะท้อน · พิมพ์ขนาดจริง 100%</td></tr>
+<tr><td>Revit ไม่เห็นหมุด</td><td>ตรวจว่า Link แบบ Origin to Origin / Shared · หมุดเล็ก (15 cm) ให้ซูมเข้าหรือใช้ schedule หา "NAR-"</td></tr>
+<tr><td>Export แล้วหาไฟล์ไม่เจอ</td><td>ดู <a href="#where">ไฟล์ที่ export ไปอยู่ไหน</a> · iPad ต้องกด Save to Files ในกล่อง File ready</td></tr>
+<tr><td>LINE ขึ้น "file types that can't be shared"</td><td>ใช้ปุ่ม <span class="btn">Send as ZIP</span> แทน LINE รับไฟล์ .zip</td></tr>
+<tr><td>ไฟล์ HTML ใหญ่เกินส่ง</td><td>ลดรูปในมาร์ค หรืออัปโหลดขึ้น Drive แล้วส่งลิงก์</td></tr>
+</table>
+</section>
+
+<section id="limits">
+<h2>ข้อจำกัดที่ต้องรู้</h2>
+<ul>
+<li><b>เดินแล้วโมเดลไม่ตามเอง</b> เพราะเว็บแอปบน iPad ไม่มีระบบติดตามตำแหน่ง (ARKit) ใช้หลัก "ยืนจุด → ล็อก → หันดู → ถ่าย → ย้ายจุดแล้วล็อกใหม่" ถ้าต้องการเดินแล้วตามเองต้องเป็นแอป Unity / native (แผนในอนาคต)</li>
+<li>ความแม่นของ CAM ขึ้นกับ HEIGHT, FOV และจุดอ้างอิง QR แม่นที่สุด</li>
+<li>ข้อมูลอยู่ในเครื่องเดียว ไม่มีการซิงก์ ต้อง export/import เอง</li>
+<li>เปิด DWG / RVT ตรงๆ ไม่ได้ ให้ export เป็น IFC หรือ DXF</li>
+<li>ระบบ GPS / นับก้าว / Site / AR เก่า ถูกพักไว้ (ปิดซ่อน ยังไม่ลบโค้ด)</li>
+</ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="changelog" class="chg">
+<h2>มีอะไรใหม่ (Changelog)</h2>
+<h3>v2.6.0 — 25 พ.ย. 2026</h3>
+<ul>
+<li><b>รองรับ Apple Pencil อัตโนมัติ (ไม่ต้องตั้งค่า)</b>: ตรวจจับหัวปากกา (<span class="mono">pointerType === 'pen'</span>) อัตโนมัติ พร้อมระบบ <b>Palm Rejection</b> (กันอุ้งมือชนจอไม่ให้เผลอซูม/หมุนโมเดลหรือปิดกล่อง Modal ระหว่างจด), ปรับระยะกันมือสั่นเฉพาะหัวปากกาตอนกดปักหมุด/วัดระยะ/ViewCube และแสดงเป้าเล็งพร้อมพิกัดล่วงหน้าตอนจ่อปากกา (Apple Pencil Hover)</li>
+<li><b>แถบสลับ <span class="mono">[ Type | Pencil ]</span> ข้างช่องข้อความ + กระดาษเขียน Scribble (ไทย + อังกฤษ)</b>: ข้างหัวข้อ <b>Note / Comment</b> และ <b>Replies</b> มีแถบสลับระหว่างพิมพ์คีย์บอร์ด (<b>Type</b>) กับเขียนด้วยปากกา (<b>Pencil</b> — ขยายช่องข้อความเป็นกระดาษมีเส้นบรรทัดกว้าง พร้อมรองรับ <b>iPadOS Scribble ขีดเขียนแปลงเป็นตัวอักษรทั้งไทยและอังกฤษ</b> ออฟไลน์ 100%, สลับโหมดอัตโนมัติเมื่อแตะช่องด้วย Apple Pencil และกัน Safari ซูมจอเด้ง)</li>
+</ul>
+<h3>v2.5.0 — 24 พ.ย. 2026</h3>
+<ul>
+<li><b>แยกชุดข้อมูล 2 สายชัดเจน (Object Marks vs Site Notes)</b>: รวม <b>Comment + Note</b> เดิมเป็น <b>Note</b> ชุดเดียวสำหรับอ่าน/ตรวจงาน รหัส <span class="mono">NT-001, NT-002…</span> (หมุด <span class="mono">N1, N2…</span>) ส่วน <b>Object Mark (IFC)</b> ใช้รหัส <span class="mono">MK-001, MK-002…</span> (หมุด <span class="mono">M1, M2…</span>) สำหรับสร้างวัตถุจริงใน IFC / Revit และแยกแท็บกรอง <b>Marks · IFC</b> / <b>Notes</b> ชัดเจนในรายการ</li>
+<li><b>ระบบรันเลขกลับอัตโนมัติ (Auto-Renumbering)</b>: เมื่อลบมาร์คหรือโน้ต (หรือสลับประเภทระหว่าง Mark ↔ Note) ระบบจะขยับเลขลำดับที่เหลือขึ้นมารันต่อกันทันที (<span class="mono">1, 2, 3…</span>) ไม่ทิ้งช่องว่าง และอัปเดตชื่อไฟล์/รหัสอ้างอิงทุกชุดให้ตรงกัน</li>
+<li><b>แยกไฟล์ Export ชัดเจนคนละชุด</b>: เมนู <b>Export ▾</b> แยกหมวด <b>Object Marks (MK · IFC / Revit)</b> (<span class="mono">IFC + Marks</span> เฉพาะวัตถุไม่มี Note ปน, <span class="mono">UniFormat Excel</span> เฉพาะ Mark, <span class="mono">_Marks.json</span>) ออกจาก <b>Site Notes (NT · Read-Only)</b> (<span class="mono">Notes Excel .xlsx</span>, <span class="mono">Notes CSV</span>, <span class="mono">_Notes.json</span>) และแยกโฟลเดอร์รูป <span class="mono">Marks/</span> vs <span class="mono">Notes/</span> ใน Photo Pack</li>
+<li><b>บันทึกพิกัด IFC (X, Y, Z) + ชื่อโมเดล + วัน-เวลาตรวจจริง (Checked Date &amp; Time) ทุกจุด</b>: แสดงพิกัดตรงกับโมเดลที่นำเข้าและเวลาตรวจบนการ์ดทุกใบ แก้ไขวัน-เวลาตรวจได้ในกล่อง Edit และส่งออกครบทุกไฟล์ (<span class="mono">.ifc</span>, <span class="mono">.xlsx</span>, <span class="mono">.csv</span>, <span class="mono">.json</span>) เพื่อนำไปเช็คตำแหน่งทางพิกัดได้แม่นยำ</li>
+</ul>
+<h3>v2.4.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>โหมดวัดระยะ 3 มิติ (Measure · ปุ่ม <span class="mono">📏</span> บน Dock หรือกด <span class="mono">R</span>)</b>: แตะ 2 จุดบนโมเดลเพื่อวัดระยะ 3D, ระยะราบ (XY) และความสูงต่างระดับ (ΔZ) พร้อมป้ายตัวเลขกลางเส้นตามหน่วยที่ตั้งใน Settings วัดต่อเนื่องหลายเส้นและกด Undo / Clear ได้</li>
+<li><b>ระบบ Auto Naming ภาพถ่าย + Photo Directory CSV + Photo Pack (.zip)</b>: ตั้งชื่อไฟล์และจัดโฟลเดอร์ตามหมวด UniFormat อัตโนมัติเหมือนกันทุกจุด (<span class="mono">D_Services/D5030_Security_Devices/NAR-004_D5030_CCTV_Camera_P01.jpg</span>) มีปุ่ม <b>📷</b> เสริมทั้งบนแถบ Mark (เปิดกล้องอัตโนมัติแบบเลือกได้) และในแผงรายละเอียดหมุด พร้อมส่งออก <b>Photo Pack + Directory CSV (.zip)</b>, <b>Photo Directory CSV</b> และเชื่อมชื่อไฟล์ตรงกับ <b>UniFormat Excel (.xlsx)</b> 100%</li>
+</ul>
+<h3>v2.3.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>Export → UniFormat Excel (<span class="mono">.xlsx</span>)</b>: สร้างไฟล์ Excel แท้ 2 ชีต (ทำงานออฟไลน์ 100%) ดึงมา <b>เฉพาะรายการ UniFormat II ที่ใช้จริงในโปรเจกต์</b> รองรับถึง <b>Level 4</b> (เช่น <span class="mono">D5030.10</span>): ชีต <b>UniFormat Summary</b> สรุปจำนวน (<span class="mono">Qty</span>) + ระบุชัดว่าเป็น Item ไหนบ้าง (<span class="mono">NAR-001, NAR-002...</span>) และชีต <b>Project Items</b> ครบทุกพิกัด/Host/Normal สำหรับนำไป Automate เข้า Revit</li>
+</ul>
+<h3>v2.2.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>คลัง UniFormat II ครบทั้งมาตรฐาน ASTM E1557 (<span class="mono">A1010 – G9090</span>, 85 รายการ)</b> ใน <span class="mono">settings/uniformat.js</span>: ใช้ชื่อ Family กลางสะอาดตาไม่มีคำนำหน้า <span class="mono">NEX_</span> (เช่น <span class="mono">CCTV_Camera</span>, <span class="mono">Power_Outlet</span>, <span class="mono">Sprinkler</span>)</li>
+<li><b>แยก UX ระหว่างหน้างานกับคนทำ BIM</b>: บนแถบ <b>Mark</b> หน้าจอหลักโชว์เฉพาะชื่อสั้นๆ ไม่มีรหัสเลขให้อ่านง่ายสำหรับทุกคน ส่วนในหน้า <b>+ Setup / Settings</b> มีรหัส UniFormat ครบ Level 1 (<span class="mono">A–G</span>) → Level 2 (<span class="mono">A10–G90</span>) → Level 3 (<span class="mono">D5030</span>) พร้อมช่องค้นหา, ปุ่ม <b>Unpin all</b> และติ๊กปักหมุดเลือกชุดที่จะใช้ตรวจ</li>
+</ul>
+<h3>v2.1.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>ระบบจัดหมวด UniFormat II (Level 1 A–G → Level 3) + Custom Inspection Checklist</b>: แถบ <b>Mark</b> แบบ 2 ชั้น ตรึงปุ่ม <b>Family · Comment · Note · Issue</b> ไว้ด้านหน้าเห็นชัดตลอด (กด Comment/Note/Issue แล้วคลิกโมเดลจะเด้งกล่องพิมพ์คอมเมนต์ให้ทันที) ส่วน <b>Family</b> โชว์เฉพาะรายการ UniFormat Level 3 ที่คุณติ๊กปักหมุดไว้สำหรับงานตรวจวันนี้ (กด <b>+ Setup</b> เพื่อเลือก/แอดเพิ่มตามหมวด A–G ได้ทันที)</li>
+<li><b>Host-Locked Face-Based Marking</b>: คลิกเลือกชิ้นงานบนจอ (ผนัง/ฝ้า/พื้น) แล้วกด <b>Host Mark</b> เพื่อล็อกวางหมุดเกาะเฉพาะผิวของชิ้นนั้น พร้อมเก็บ <span class="mono">UniformatCode</span>, <span class="mono">PlacementMode (face-based)</span>, <span class="mono">HostRevitId</span>, <span class="mono">HostElementGuid</span>, <span class="mono">Normal</span> และ <span class="mono">RotationDeg</span> ครบทุกไฟล์ส่งออก (JSON / IFC + Marks / CSV)</li>
+</ul>
+<h3>v2.0.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>Clean Field UI (ออกแบบใหม่สำหรับ iPad / มือถือหน้างาน)</b>: ยุบ Ribbon 2 ชั้นและปุ่มซ้ำซ้อนทั้งหมด เหลือแค่ <b>Top Bar แถวเดียว</b> (<span class="mono">Open</span>, <span class="mono">Export ▾</span>, Theme, <span class="mono">⚙ Settings</span>, Panel) และ <b>Bottom Dock แถวเดียว</b> (<span class="mono">3D / Plan / Walk / CAM</span> · <span class="mono">Cut / X-Ray / More</span> · <span class="mono">Mark / Capture</span>) พื้นที่โมเดล 3D กว้างขึ้นกว่าเดิม (สลับกลับ Classic Ribbon ได้ใน Settings)</li>
+<li><b>Smart Family Markup + โหมด ⚡ 1-Tap (Site → Revit / NEXBIM)</b>: กด <b>Mark</b> แล้วเลือก Family Preset จากแถบด่วน (เช่น <span class="mono">CCTV</span>, <span class="mono">Power Outlet</span>, <span class="mono">Sprinkler</span>, <span class="mono">Diffuser</span>, <span class="mono">Door</span>) แตะจุดบนโมเดลเพื่อวางหมุดรัวๆ ได้ทันทีโดยไม่ต้องกรอกฟอร์มทุกครั้ง ระบบจับ <b>พิกัด IFC (X, Y, Z) + ผิวที่แปะ (Floor/Wall/Ceiling) + เวกเตอร์ Normal + มุมหันหน้า (°) + Host GUID</b> อัตโนมัติ และส่งออกครบทั้ง JSON, CSV และ IFC (<span class="mono">NEXAR_Markup</span>)</li>
+<li><b>3D ViewCube + ปุ่มหมุน &amp; Home ขนาดกะทัดรัด</b>: ลูกบาศก์ 3D มุมขวาบน (ลากหมุนรอบอาคาร / แตะหน้า TOP-FRONT-RIGHT เพื่อสแนปมุมมอง) คู่แถบ <b>⟲ | Home | ⟳</b> และจอยสัมผัส <span class="mono">MOVE / LOOK</span> แบบโปร่งแสงกะทัดรัดในโหมด Walk (เปิดลองบนคอมได้ใน Settings → Navigation)</li>
+<li><b>หน้า Software Settings ใหม่ 6 หมวด (<span class="mono">⚙</span> / <span class="mono">Ctrl+,</span>)</b>: ปรับ Theme / สี Accent / ขนาดปุ่ม (Standard, Compact, Touch iPad) / หน่วยวัด (<span class="mono">m, mm, cm, ft</span>) / Mouse Preset (<span class="mono">NEXAR, Revit, SketchUp/Blender</span>) / คุณภาพ 3D / จัดการรายการ Family Presets และ Export/Reset การตั้งค่าแบบเห็นผลทันที</li>
+</ul>
+<h3>v1.9.3 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>โทนสีเหลืองซอฟต์ (Soft Site Yellow) + ปุ่ม Capture โปร่งแสงสไตล์ Ribbon</b>: ดรอปความจ้าของสีเหลือง UI ลง (<span class="mono">#DFB73A</span> / <span class="mono">#D8AF30</span>) และปรับปุ่มลอย <b>Capture</b> ให้ใช้สไตล์โปร่งแสงขอบเหลืองเหมือนปุ่ม Active ใน Ribbon</li>
+</ul>
+<h3>v1.9.2 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>โลโก้ NEX (ขาว-เงิน) + AR (สีเหลือง) &amp; UI สีน้ำเงิน</b>: ไอคอนแอปใส่กรอบเล็งมุม AR สีเหลือง (#F5C518) ตัดกับตัว N เมทัลลิก ส่วนปุ่มกดและแถบ Active ทั้งหมดใช้สีน้ำเงิน (#3B82F6 / #5B8CFF) บนธีม NEX Dark/Light</li>
+</ul>
+<h3>v1.9.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>โลโก้และเอกลักษณ์ NEXAR ใหม่</b> (ตระกูล NEXCON / NEXBIM): โลโก้ตัว <b>N ริบบิ้นเมทัลลิก</b> คู่เส้นคั่นและอักษร <b>NEXAR</b> (E สามขีด) พร้อมไอคอนแอปแบบใหม่และหน้า <span class="mono">brand/brand.html</span></li>
+<li><b>ปรับหน้าจอใหม่ทั้งระบบ + โหมด Light / Dark</b>: ใช้ชุดสีมินิมอลขาว-เทา-ดำเหมือน NEXBIM พร้อมปุ่มสลับธีม (ไอคอนดวงอาทิตย์/พระจันทร์มุมขวาบน) เพื่อให้อ่านง่ายกลางแดดหน้างาน และแยกสีหมุดตามประเภทชัดเจน (Issue แดง / Note เหลือง / Comment น้ำเงิน / Resolved เขียว)</li>
+</ul>
+<h3>v1.8.0 — 23 พ.ย. 2026</h3>
+<ul>
+<li><b>เปลี่ยนชื่อเป็น NEXAR</b> ทั้งหมด เพื่อรวมเข้าตระกูลซอฟต์แวร์ <b>NEX</b> ร่วมกับ NEXBIM (ไฟล์โปรเจกต์เป็น <span class="mono">.nexar.json</span>, แท็กมาร์ค <span class="mono">NAR-001</span>, Pset <span class="mono">NEXAR_Markup</span> — ยังรองรับการนำเข้า <span class="mono">.sitear.json</span>, BCF และ QR เดิม)</li>
+<li><b>จัดโครงสร้างโฟลเดอร์ใหม่แบบเดียวกับ NEXBIM</b>: <span class="mono">DirectoryManual/</span>, <span class="mono">brand/</span>, <span class="mono">docs/</span>, <span class="mono">settings/</span>, <span class="mono">src/Core</span> · <span class="mono">Exporters</span> · <span class="mono">App</span>, <span class="mono">tools/</span></li>
+</ul>
+<h3>v1.7.2 — 21 พ.ย. 2026</h3>
+<ul>
+<li>แก้: ส่งไฟล์เข้า LINE ไม่ได้ ("file types that can't be shared") เพิ่มปุ่ม <b>Send as ZIP</b> ในกล่อง File ready · ปุ่ม Save / Share เปลี่ยนชื่อเป็น <b>Save to Files</b></li>
+</ul>
+<h3>v1.7.1 — 21 พ.ย. 2026</h3>
+<ul>
+<li>แก้: export บน iPad / มือถือแล้วหาไฟล์ไม่เจอ ตอนนี้จะขึ้นกล่อง <b>File ready</b> มีปุ่ม <b>Save / Share</b> (Save to Files, AirDrop, LINE…) บนคอมจะบอกว่าบันทึกลง Downloads</li>
+<li>คู่มือ: เพิ่มหัวข้อ "ไฟล์ที่ export ไปอยู่ไหน"</li>
+</ul>
+<h3>v1.7.0 — 21 พ.ย. 2026</h3>
+<ul>
+<li>ใหม่: Export → <b>Interactive HTML</b> ไฟล์เดียวมีโมเดล + มาร์ค + รูป เปิดในเบราว์เซอร์ได้เลย</li>
+<li>ใหม่: Export → <b>IFC + Marks</b> มาร์คกลายเป็นวัตถุใน IFC ชื่อและพารามิเตอร์ตามคอมเมนต์ (Pset SiteAR_Markup) ใช้ใน Revit ได้</li>
+<li>ใหม่: คู่มือนี้ (Export → Help → <b>Manual</b>)</li>
+</ul>
+<h3>v1.6.0</h3>
+<ul>
+<li>CAM ในโหมด Walk: ซ้อนโมเดลในภาพกล้องสเกลจริง, PLACE, ⟲ ⟳, HEIGHT, FOV, MODEL %, OVERLAY / SPLIT</li>
+<li>QR LOCK ในกล้อง · Create QR ย้ายมาแท็บ View · Capture ได้ภาพซ้อน + ภาพจริง</li>
+</ul>
+<h3>v1.5.x</h3>
+<ul>
+<li>ควบคุมแบบเกม: จอย MOVE / LOOK, ▲▼, ความเร็ว, GYRO เปิด/ปิด · Capture / Mark / Group · UI ภาษาอังกฤษ โทนน้ำเงิน-ดำ</li>
+<li>พักระบบ GPS / นับก้าว / AR เดิม</li>
+</ul>
+</section>
+</main>
+</div>
+<script>
+// highlight the section in view + simple search that hides non-matching sections
+const links = [...document.querySelectorAll('#toc a')];
+const secs = links.map((a) => document.querySelector(a.getAttribute('href')));
+const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { links.forEach((l) => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id)); } }, { rootMargin: '-10% 0px -80% 0px' });
+secs.forEach((s) => s && io.observe(s));
+document.getElementById('q').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  secs.forEach((s, i) => { const hit = !q || s.textContent.toLowerCase().includes(q); s.classList.toggle('hide', !hit); links[i].classList.toggle('hide', !hit); });
+});
+</script>
+</body>
+</html>
