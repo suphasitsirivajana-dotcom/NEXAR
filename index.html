@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>NEXAR</title>
+  <meta name="description" content="NEXAR — BIM site markup in AR. IFC / DXF / GLB, GPS + QR positioning, BCF export for NEXBIM, Revit and openBIM.">
+  <meta name="theme-color" content="#0A0A0C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXAR">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="brand/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="brand/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="brand/tokens/nexar-theme.css">
+  <link rel="stylesheet" href="src/App/Nexar.Web/css/app.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.57/web-ifc-api.js",
+      "dxf-parser": "https://cdn.jsdelivr.net/npm/dxf-parser@1.1.2/+esm",
+      "jszip": "https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm",
+      "jsqr": "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/+esm",
+      "qrcode-generator": "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <header id="titlebar">
+      <div id="brand"></div>
+      <div class="tb-sep"></div>
+      <button id="project-name" class="tb-project" title="Project menu (New, Open, Projects, Save)">Project</button>
+      <div id="save-state" class="save-state"></div>
+      <div class="tb-spacer"></div>
+      <button id="btn-open" class="tb-btn" title="Open IFC / DXF / GLB model"></button>
+      <button id="btn-export" class="tb-btn" title="Export HTML / IFC / BCF / JSON / CSV"></button>
+      <button id="btn-theme" class="icon-btn" title="Switch Light / Dark theme" aria-label="Toggle theme"></button>
+      <button id="btn-settings" class="icon-btn" title="Settings (Ctrl+,)" aria-label="Settings"></button>
+      <button id="btn-panel" class="icon-btn" title="Markups &amp; Info panel" aria-label="Toggle panel">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M14.5 4v16"/></svg>
+        <span class="count" id="mk-count">0</span>
+      </button>
+    </header>
+
+    <nav id="ribbon-tabs" role="tablist"></nav>
+    <div id="ribbon"></div>
+
+    <main id="workspace">
+      <div id="viewport">
+        <video id="camfeed" playsinline muted hidden></video>
+        <canvas id="c"></canvas>
+        <div id="pen-reticle" class="pen-reticle" hidden aria-hidden="true"></div>
+
+        <div id="hint" hidden></div>
+        <div id="lock-badge" class="lock-badge" hidden>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          <span>View locked</span>
+        </div>
+
+        <div id="nav-gizmo" class="nav-gizmo" aria-label="3D ViewCube &amp; Navigation">
+          <div id="vc-stage" class="vc-stage" title="Drag to rotate 3D · Tap face to snap view">
+            <div class="vc-ring"><span id="vc-north" class="vc-n">N</span></div>
+            <div id="vc-cube" class="vc-cube">
+              <button type="button" class="vc-f vc-front" data-view="front">FRONT</button>
+              <button type="button" class="vc-f vc-back" data-view="back">BACK</button>
+              <button type="button" class="vc-f vc-right" data-view="right">RIGHT</button>
+              <button type="button" class="vc-f vc-left" data-view="left">LEFT</button>
+              <button type="button" class="vc-f vc-top" data-view="top">TOP</button>
+              <button type="button" class="vc-f vc-bottom" data-view="bottom">BTM</button>
+            </div>
+          </div>
+          <div class="vc-bar">
+            <button id="vc-rotl" type="button" title="Rotate left 45°" aria-label="Rotate left">⟲</button>
+            <button id="home-btn" type="button" title="Home · Fit building (H) · right-click = Set Home" aria-label="Home view">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5M10 20v-5.5h4V20"/></svg>
+            </button>
+            <button id="vc-rotr" type="button" title="Rotate right 45°" aria-label="Rotate right">⟳</button>
+          </div>
+        </div>
+        <button id="compass" class="compass" hidden aria-hidden="true"><svg viewBox="0 0 48 48"><g id="compass-needle"></g></svg></button>
+        <div id="clip-ctl" class="clip-ctl" hidden></div>
+
+        <div id="family-bar" class="family-bar" hidden></div>
+
+        <div id="modebar" class="modebar">
+          <button data-mode="orbit" title="3D Orbit (1)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4z"/><path d="M4 7.4l8 4.6 8-4.6M12 12v9.2"/></svg><span>3D</span></button>
+          <button data-mode="plan" title="Plan View (2)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M3.5 11h7V3.5M14 20.5V14h6.5"/></svg><span>Plan</span></button>
+          <button data-mode="walk" title="Walkthrough (3)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2.2-6.5L14 17v4M8 11.5l3-3.5 3.5.8 1.8 3.7 2.2 1M11.2 14.5l-.5-4"/></svg><span>Walk</span></button>
+          <button id="dock-cam" class="dock-only" title="Live Camera AR Overlay"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 10.5 21 7.5v9l-5.5-3"/><rect x="3" y="6.5" width="12.5" height="11" rx="2"/></svg><span>CAM</span></button>
+          <button data-mode="ar" class="ar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V6A2.5 2.5 0 0 1 6 3.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2"/><path d="M12 7.5l4 2.3v4.4L12 16.5l-4-2.3V9.8zM8 9.8l4 2.3 4-2.3M12 12.1v4.4"/></svg><span>AR</span></button>
+          <i class="dock-sep dock-only"></i>
+          <button id="dock-measure" class="dock-only" title="Measure 3D distance (R)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5 16.5 4l3.5 3.5L7.5 20z"/><path d="m14 6.5 1.8 1.8M11 9.5l1.8 1.8M8 12.5l1.8 1.8"/></svg><span>Dist</span></button>
+          <button id="dock-section" class="dock-only" title="Section / Floor Cut"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18" stroke-dasharray="2 2.2"/><path d="M6 9 12 4l6 5M6 15l6 5 6-5"/></svg><span>Cut</span></button>
+          <button id="dock-xray" class="dock-only" title="X-Ray Transparency"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>X-Ray</span></button>
+          <button id="dock-more" class="dock-only" title="More View Tools (Fit, Home, Grid, Pins, QR)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
+          <i class="dock-sep dock-only"></i>
+          <button id="dock-mark" class="dock-only dock-accent" title="Place Family / Site Mark on model (M)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span>Mark</span></button>
+          <button id="dock-capture" class="dock-only" title="Quick Capture View (C)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8A1.5 1.5 0 0 1 5 6.5h2.5L9 4.5h6l1.5 2H19A1.5 1.5 0 0 1 20.5 8v10A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z"/><circle cx="12" cy="12.8" r="3.6"/></svg><span>Capture</span></button>
+        </div>
+
+        <div id="selchip" class="selchip" hidden></div>
+        <div id="joystick" class="joystick" hidden><span class="jl">MOVE</span><div class="knob"></div></div>
+        <div id="joystick-look" class="joystick right" hidden><span class="jl">LOOK</span><div class="knob"></div></div>
+        <button id="gyro-btn" class="gyro-btn" hidden title="Turn the device to look around (on / off)">
+          <span class="gdot"></span><span>GYRO</span><b id="gyro-state">OFF</b>
+        </button>
+        <button id="cam-btn" class="gyro-btn cam-btn" hidden title="Live camera behind the model (on / off)">
+          <span class="gdot"></span><span>CAM</span><b id="cam-state">OFF</b>
+        </button>
+        <div id="pip-tag" class="pip-tag" hidden><i></i>SITE · LIVE</div>
+        <div id="cam-panel" class="cam-panel" hidden>
+          <div class="cam-view" id="cam-view"><button data-v="overlay" class="on">OVERLAY</button><button data-v="split">SPLIT</button></div>
+          <div class="cam-row" id="cam-place-row">
+            <button id="cam-rotl" title="Rotate the model around its placed point">⟲ 5°</button>
+            <button id="cam-place" class="primary" title="Tap the ground in the camera view to stand the model there">PLACE</button>
+            <button id="cam-rotr" title="Rotate the model around its placed point">5° ⟳</button>
+          </div>
+          <div class="cam-row cam-qr-row"><button id="cam-qr" title="Snap the model to a printed NEXAR QR">QR LOCK</button><span id="cam-qr-s">off</span></div>
+          <label><span>HEIGHT</span><input type="range" id="cam-h" min="0.3" max="2.5" step="0.05" value="1.5"><b id="cam-h-v">1.50 m</b></label>
+          <label id="cam-op-row"><span>MODEL</span><input type="range" id="cam-op" min="0" max="1" step="0.05" value="0.6"><b id="cam-op-v">60%</b></label>
+          <label><span>FOV</span><input type="range" id="cam-fov" min="28" max="75" step="1" value="45"><b id="cam-fov-v">45°</b></label>
+        </div>
+        <div id="fly" class="fly" hidden>
+          <button id="fly-up" aria-label="Up" title="Up (E)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 14.5 12 9l5.5 5.5"/></svg></button>
+          <button id="speed-btn" title="Speed">WALK</button>
+          <button id="fly-down" aria-label="Down" title="Down (Q)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button>
+        </div>
+        <div id="quick" class="quick">
+          <button id="q-capture" title="Capture this view (C)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8A1.5 1.5 0 0 1 5 6.5h2.5L9 4.5h6l1.5 2H19A1.5 1.5 0 0 1 20.5 8v10A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z"/><circle cx="12" cy="12.8" r="3.6"/></svg><span>Capture</span></button>
+          <button id="q-mark" title="Mark under the crosshair (M)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span>Mark</span></button>
+          <button id="q-group" class="chip" title="Active group (tap to change)"><span id="q-group-name">No group</span></button>
+        </div>
+        <div id="crosshair" class="crosshair" hidden><span></span></div>
+        <!-- Walk & Mark: the simple mode (plan view, tap where you stand, walk, press Mark) -->
+        <div id="wm" class="wm" hidden>
+          <div class="wm-top">
+            <div class="wm-msg" id="wm-msg"></div>
+            <button class="wm-btn" id="wm-exit">Exit</button>
+          </div>
+          <div class="wm-bottom">
+            <div class="wm-left"></div>
+            <div class="wm-center">
+              <div class="wm-ahead" id="wm-ahead" title="How far ahead of you to place the mark">
+                <span>Ahead</span><button data-d="0" class="on">0</button><button data-d="1">1 m</button><button data-d="2">2 m</button><button data-d="3">3 m</button>
+              </div>
+              <button class="wm-mark" id="wm-mark">Mark here</button>
+            </div>
+            <div class="wm-right">
+              <button class="wm-btn" id="wm-reset">Reset position</button>
+              <div class="wm-rot"><button class="wm-btn" id="wm-rotl" aria-label="Turn left">⟲ 10°</button><button class="wm-btn" id="wm-rotr" aria-label="Turn right">10° ⟳</button></div>
+            </div>
+          </div>
+        </div>
+        <button id="step-btn" class="step-btn" hidden aria-label="Step forward" title="Tap = one step · hold = keep walking">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11l6-6 6 6"/></svg><span>Step</span>
+        </button>
+
+        <div id="empty" class="empty">
+          <div class="empty-card">
+            <div id="empty-logo" class="empty-logo"></div>
+            <div class="empty-tag">Spatial BIM · Site AR · OpenBCF</div>
+            <h1>Bring your BIM on site.</h1>
+            <p>Open IFC from NEXBIM / Revit, DXF or GLB · walk through in 3D, plan or first person · capture views and mark issues · export back as BCF or IFC</p>
+            <div class="empty-actions">
+              <button class="btn primary lg" data-e="open"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2.5h8.5A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></svg><span>Open model</span></button>
+              <button class="btn lg" data-e="sample"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6M4 20h16"/></svg><span>Try sample</span></button>
+              <button class="btn ghost lg" data-e="import"><span>Import project</span></button>
+            </div>
+            <div class="formats"><span>IFC 2x3 / 4</span><span>DXF</span><span>GLB · GLTF</span><span>OBJ</span><span>BCF 3.0</span></div>
+            <p class="drop-hint">or drop files here</p>
+          </div>
+        </div>
+        <div id="busy" class="busy" hidden><div class="spinner"></div><span>Loading…</span></div>
+        <div class="drop-overlay"><div>Drop IFC · DXF · GLB · BCF</div></div>
+
+        <div id="ar-overlay" class="ar-overlay" hidden></div>
+      </div>
+
+      <aside id="panel">
+        <div class="panel-grip"></div>
+        <div class="panel-head">
+          <div id="panel-tabs" class="seg">
+            <button data-tab="markups">Markups</button><button data-tab="views">Views</button><button data-tab="info">Info</button>
+          </div>
+          <button id="panel-close" class="icon-btn" aria-label="Close panel"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div id="panel-body"></div>
+      </aside>
+    </main>
+
+    <footer id="statusbar">
+      <span class="st-item mono" id="st-xyz">—</span>
+      <span class="st-spacer"></span>
+      <span class="st-item" id="st-anchor"></span>
+      <span class="st-item" id="st-gps"></span>
+      <span class="st-item muted hide-sm" id="st-units">IFC · m · Z-up</span>
+      <span class="st-item muted" id="st-ver" title="App version — if it does not match your upload, close and reopen the app"></span>
+    </footer>
+  </div>
+
+  <div id="menu-root"></div>
+  <div id="modal-root"></div>
+  <div id="toasts"></div>
+  <!-- no accept filter on purpose: iOS greys out unknown extensions like .ifc. The app checks the extension itself. -->
+  <input type="file" id="file-model" multiple hidden>
+  <input type="file" id="file-project" hidden>
+  <input type="file" id="file-cam-photo" accept="image/*" capture="environment" multiple hidden>
+
+  <script>
+    if (location.protocol === 'file:') {
+      document.addEventListener('DOMContentLoaded', function () {
+        var el = document.querySelector('#empty .empty-card');
+        if (el) el.innerHTML = '<h1 style="margin:0 0 10px">กรุณาเปิดผ่าน Start NEXAR.bat</h1><p style="margin:0;color:var(--text-2)">เบราว์เซอร์บล็อก ES Modules เมื่อดับเบิลคลิกไฟล์ <code>index.html</code> ตรงๆ (<code>file://</code>)<br><br>ให้ดับเบิลคลิกไฟล์ <b>Start NEXAR.bat</b> ในโฟลเดอร์ <b>Nexar</b> แล้วเปิดที่ <code>http://localhost:5173</code> แทนครับ</p>';
+      });
+    }
+  </script>
+  <script type="module" src="src/App/Nexar.Web/main.js"></script>
+</body>
+</html>
