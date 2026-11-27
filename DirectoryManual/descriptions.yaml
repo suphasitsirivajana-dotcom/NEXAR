@@ -76,7 +76,7 @@ paths:
 
   - { path: "src/Core/Nexar.Document", p: "ข้อมูลโปรเจกต์ มาร์ค กลุ่ม มุมมอง และการบันทึกลงเครื่องแบบออฟไลน์",
       r: "เหมือน Nexbim.Document" }
-  - { path: "src/Core/Nexar.Document/project.js", p: "โครงสร้างข้อมูลโปรเจกต์ (nexar.project/1.0), แยกชุด Object Mark (MK-###) vs Read-Only Note (NT-###), ระบบรันเลขกลับ (renumberMarkups) และเวลาตรวจ (checkedAt)" }
+  - { path: "src/Core/Nexar.Document/project.js", p: "โครงสร้างข้อมูลโปรเจกต์ (nexar.project/1.0), แยก 3 ชุดอิสระ Mark (● MK-###) / Note (■ NT-###) / Issue (▲ IS-###), ระบบรันเลขกลับ และเวลาตรวจ (checkedAt)" }
   - { path: "src/Core/Nexar.Document/store.js", p: "ระบบบันทึกข้อมูลลง IndexedDB บนเครื่อง (เก็บทั้ง JSON โปรเจกต์ และไฟล์โมเดล .ifc/.glb ใช้ออฟไลน์ได้)" }
 
   - { path: "src/Core/Nexar.Loaders", p: "ตัวอ่านไฟล์โมเดล 3 มิติและข้อมูล BIM" }
@@ -90,10 +90,11 @@ paths:
   - { path: "src/Exporters", p: "ส่งออกและแลกเปลี่ยนไฟล์ (อ่านข้อมูลอย่างเดียว ไม่แก้โมเดล)", r: "เหมือน Nexbim/src/Exporters/" }
   - { path: "src/Exporters/README.md", p: "สรุปรูปแบบไฟล์ที่ NEXAR ส่งออกได้ (BCF, IFC + Marks, Interactive HTML)" }
   - { path: "src/Exporters/bcf.js", p: "ส่งออก / นำเข้า BCF 3.0 (.bcfzip) พร้อมมุมกล้อง รูปภาพ และ IFC GUID (รองรับแท็ก [NEXAR] และ [SiteAR] เดิม)" }
-  - { path: "src/Exporters/ifcmarks.js", p: "ส่งออก IFC + Marks: แปลงเฉพาะ Object Marks (MK-###) เป็นวัตถุ IfcBuildingElementProxy พร้อม Pset NEXAR_Markup (พิกัด IFC + CheckedAt + ModelFile — ไม่รวม Notes)" }
+  - { path: "src/Exporters/ifcmarks.js", p: "ส่งออก IFC ไฟล์เดียว 2 โหมด (Export All รวมอาคาร / Export Spot เฉพาะจุด Sync Base Point) แยก 3 รูปทรง 3 สี: Mark ทรงกลมเหลือง · Note ลูกบาศก์น้ำเงิน · Issue สามเหลี่ยมด้านเท่าแดง" }
   - { path: "src/Exporters/htmlexport.js", p: "ส่งออก Interactive HTML ไฟล์เดียวจบ (ฝังโมเดล GLB + หมุด + รูปภาพ เปิดดูได้ทุกเบราว์เซอร์)" }
-  - { path: "src/Exporters/xlsxexport.js", p: "ส่งออกไฟล์ Excel แท้ (.xlsx) แยกชุด: UniFormat Excel (เฉพาะ Object Marks MK-###, Level 1–4) และ Site Notes Excel (เฉพาะ Read-Only Notes NT-###)" }
-  - { path: "src/Exporters/photopack.js", p: "ระบบ Auto Naming ภาพถ่ายและโครงสร้างโฟลเดอร์แยก Marks/ vs Notes/ + ส่งออก Photo Directory CSV และ Photo Pack (.zip)" }
+  - { path: "src/Exporters/cropreport.js", p: "ส่งออก HTML Crop View & Coordinate Report: แผนผังพิกัด 2D (SVG) + 3D Crop View เฉพาะจุด + Local Plan Crop ±5 m + ตารางพิกัดและรูปหน้างาน (พิมพ์ PDF ได้)" }
+  - { path: "src/Exporters/xlsxexport.js", p: "ส่งออกไฟล์ Excel แท้ (.xlsx) แยก 3 ชุด: UniFormat Marks (MK), Site Notes (NT) และ Site Issues (IS)" }
+  - { path: "src/Exporters/photopack.js", p: "ระบบ Auto Naming ภาพถ่ายและโครงสร้างโฟลเดอร์แยก Marks/ · Notes/ · Issues/ + ส่งออก Photo Directory CSV และ Photo Pack (.zip)" }
 
   # App
   - { path: "src/App", p: "ส่วนหน้าจอโปรแกรมและการควบคุมที่ผู้ใช้มองเห็น", r: "เหมือน Nexbim/src/App/" }

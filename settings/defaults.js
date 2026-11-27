@@ -2,7 +2,7 @@
 // Bump APP_VERSION together with VERSION in sw.js on every release.
 import { UNIFORMAT_L1, UNIFORMAT_L2, UNIFORMAT_CATALOG } from './uniformat.js';
 
-export const APP_VERSION = '2.6.0';
+export const APP_VERSION = '2.7.0';
 export const CATALOG_VERSION = 2;
 
 export const SETTINGS_KEY = 'nexar.settings';

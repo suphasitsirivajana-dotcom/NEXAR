@@ -723,9 +723,14 @@ body[data-density="touch"] .vc-stage { width: 80px; height: 80px; }
 .meas-readout b { color: var(--accent); }
 .mk-coord-line { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; font: 500 10px var(--mono); color: var(--text-2); }
 .mk-coord-line span { padding: 1px 5px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); }
-.mk-tag-chip { font: 700 10px var(--mono); padding: 1px 5px; border-radius: 4px; margin-right: 5px; background: var(--surface-3); color: var(--text); }
-.mk-tag-chip.is-mark { background: var(--accent-soft); color: var(--accent); }
+.mk-tag-chip { font: 700 10px var(--mono); padding: 1px 6px; border-radius: 4px; margin-right: 5px; background: var(--surface-3); color: var(--text); }
+.mk-tag-chip.is-mark { background: rgba(223,183,58,.15); color: #DFB73A; }
+.mk-tag-chip.is-note { background: rgba(91,140,255,.15); color: #5B8CFF; }
+.mk-tag-chip.is-issue { background: rgba(229,101,101,.16); color: #E56565; }
 .mk-pin { font-size: 10px !important; }
+.mk-pin.is-mark { border-radius: 50%; }
+.mk-pin.is-note { border-radius: 5px; }
+.mk-pin.is-issue { border-radius: 3px; clip-path: polygon(50% 4%, 98% 92%, 2% 92%); padding-top: 6px; font-size: 9px !important; }
 
 /* Quick 2-tier Mark & UniFormat Family Bar (appears above Dock when placing a Mark) */
 .family-bar { position: absolute; z-index: 6; left: 50%; bottom: 62px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 5px; max-width: calc(100% - 16px); padding: 6px 8px; border-radius: 12px; background: var(--glass-strong); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow); animation: pop2 .16s ease; }

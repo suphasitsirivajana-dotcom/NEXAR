@@ -6,7 +6,7 @@
 
 import JSZip from 'jszip';
 import { UNIFORMAT_L1, UNIFORMAT_L2, UNIFORMAT_CATALOG } from '../../settings/uniformat.js';
-import { STATUSES, typeMeta, isObjectMark, itemTag, fmtDateTime, markupTitle } from '../Core/Nexar.Document/project.js';
+import { STATUSES, typeMeta, recordKind, isObjectMark, isNoteOnly, isIssue, itemTag, fmtDateTime, markupTitle } from '../Core/Nexar.Document/project.js';
 import { itemNaming } from './photopack.js';
 
 const L1_MAP = Object.fromEntries(UNIFORMAT_L1.map((x) => [x.code, x.name]));
@@ -269,17 +269,16 @@ export async function exportUniformatExcel(project, { groupName = () => '' } = {
   return { blob, summaryCount: summaryEntries.length, itemCount: itemRows.length };
 }
 
-// ---------------------------------------------------------------- 2) Read-Only Site Notes / Issues Excel (Separate dataset)
-export async function exportNotesExcel(project, { groupName = () => '' } = {}) {
-  const notes = (project.markups || []).filter((m) => !isObjectMark(m)).sort((a, b) => (a.number || 0) - (b.number || 0));
+// ---------------------------------------------------------------- 2) Read-Only Site Notes Excel (NT-### only)
+async function buildSimpleLogExcel(items, sheetName, tagHeader, detailHeader, groupName) {
   const headers = [
-    'Note Tag', 'No.', 'Type', 'Status', 'Priority', 'Checked At', 'Model File',
-    'Title', 'Note / Comment', 'Group',
+    tagHeader, 'No.', 'Type', 'Status', 'Priority', 'Checked At', 'Model File',
+    'Title', detailHeader, 'Group',
     'X (m)', 'Y (m)', 'Z (m)', 'Host Element', 'Host IFC GUID',
     'Photos', 'Photo Folder', 'Photo Files', 'Author', 'Assigned To', 'Replies'
   ];
   const widths = [11, 6, 10, 11, 10, 18, 22, 24, 38, 14, 11, 11, 11, 24, 26, 8, 24, 32, 14, 14, 28];
-  const rows = notes.map((m) => {
+  const rows = items.map((m) => {
     const gn = groupName(m.group);
     const nm = itemNaming(m, gn);
     const p = m.position || { x: 0, y: 0, z: 0 };
@@ -305,6 +304,17 @@ export async function exportNotesExcel(project, { groupName = () => '' } = {}) {
       (m.replies || []).map((r) => `${r.author || ''}: ${r.text || ''}`).join(' | ')
     ];
   });
-  const blob = await buildWorkbookZip([{ name: 'Site Notes', headers, rows, widths }]);
+  const blob = await buildWorkbookZip([{ name: sheetName, headers, rows, widths }]);
   return { blob, count: rows.length, itemCount: rows.length };
+}
+
+export async function exportNotesExcel(project, { groupName = () => '' } = {}) {
+  const notes = (project.markups || []).filter(isNoteOnly).sort((a, b) => (a.number || 0) - (b.number || 0));
+  return buildSimpleLogExcel(notes, 'Site Notes', 'Note Tag', 'Note / Comment', groupName);
+}
+
+// ---------------------------------------------------------------- 3) Site Issues Excel (IS-### only)
+export async function exportIssuesExcel(project, { groupName = () => '' } = {}) {
+  const issues = (project.markups || []).filter(isIssue).sort((a, b) => (a.number || 0) - (b.number || 0));
+  return buildSimpleLogExcel(issues, 'Site Issues', 'Issue Tag', 'Issue Detail', groupName);
 }

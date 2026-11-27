@@ -6,7 +6,7 @@ import { loadModelFile, getIfcElementInfo, ifcColumnIds, extOf, MODEL_EXT } from
 import { store } from '../../Core/Nexar.Document/store.js';
 import { Ribbon, toast, hint, hideHint, modal, confirmBox, promptBox, download, fileToDataURL, $, $$, h, esc } from './ui.js';
 import { icon, LOGO, LOGO_LOCKUP, LOGO_HERO } from './icons.js';
-import { newProject, newMarkup, uuid, MARKUP_TYPES, STATUSES, PRIORITIES, normType, typeMeta, recordKind, isObjectMark, itemTag, pinLabel, renumberMarkups, nextNumberFor, statusColor, markupTitle, fmtDateTime, toDatetimeLocal, timeAgo, SCHEMA } from '../../Core/Nexar.Document/project.js';
+import { newProject, newMarkup, uuid, MARKUP_TYPES, STATUSES, PRIORITIES, normType, typeMeta, recordKind, isObjectMark, isNoteOnly, isIssue, shapeOf, itemTag, pinLabel, renumberMarkups, nextNumberFor, statusColor, markupTitle, fmtDateTime, toDatetimeLocal, timeAgo, SCHEMA } from '../../Core/Nexar.Document/project.js';
 import { gpsToModel, modelToGps, ifcToRaw, rawToIfc, gpsToEN, bearingFromPair, normDeg, normDeg180, modelHeadingOfRawDir, fmtM, fmtLL } from '../../Core/Nexar.Spatial/geo.js';
 import { GPS, DeviceOrient, StepTracker } from '../../Core/Nexar.Sensors/sensors.js';
 import { ARController, xrARSupported } from './ar.js';
@@ -224,17 +224,20 @@ const RIBBON_FULL = [
       { cmd: 'follow', icon: 'follow', label: 'Follow GPS' }] },
     { label: 'Setup', items: [{ cmd: 'settings', icon: 'sliders', label: 'Settings' }] }] },
   { id: 'share', label: 'Export', groups: [
-    { label: 'Object Marks (IFC)', items: [
-      { cmd: 'ifc-export', icon: 'ifc', label: 'IFC + Marks', tip: 'Export Object Marks (MK-###) into IFC with parameters (Revit: Link IFC)' },
-      { cmd: 'xlsx-export', icon: 'table', label: 'UniFormat Excel', tip: 'Export used UniFormat L1–L4 Object Marks (.xlsx)' },
-      { cmd: 'marks-json', icon: 'json', label: 'Marks JSON', tip: 'Object Marks JSON only (_Marks.json)' }] },
-    { label: 'Notes (Read-Only)', items: [
-      { cmd: 'notes-xlsx', icon: 'table', label: 'Notes Excel', tip: 'Export site Notes / Comments separately (.xlsx)' },
-      { cmd: 'notes-csv', icon: 'table', label: 'Notes CSV', tip: 'Export site Notes / Comments (.csv)' },
-      { cmd: 'notes-json', icon: 'json', label: 'Notes JSON', tip: 'Notes JSON only (_Notes.json)' }] },
-    { label: 'Share & Project', items: [
-      { cmd: 'html-export', icon: 'html', label: 'Interactive HTML', tip: 'One .html file: model + marks + photos — opens in any browser' },
-      { cmd: 'photo-zip', icon: 'photo', label: 'Photo Pack ZIP', tip: 'Organized UniFormat photo folders + Photo_Directory.csv' },
+    { label: '3D IFC & Crop Report', items: [
+      { cmd: 'ifc-export', icon: 'ifc', label: 'IFC Export All', tip: '1 IFC file: Model + all 3D spots (Mark=Yellow Sphere, Note=Blue Cube, Issue=Red Triangle)' },
+      { cmd: 'ifc-spot', icon: 'target', label: 'IFC Export Spot', tip: '1 lightweight IFC: 3D spots only, Base Point & Storeys synced to loaded model' },
+      { cmd: 'crop-html', icon: 'html', label: 'Crop View HTML', tip: 'Standalone HTML Coordinate & Crop-View Report (2D Plan + 3D Crop + Coords)' },
+      { cmd: 'html-export', icon: 'orbit', label: '3D HTML Viewer', tip: 'One .html file: interactive 3D model + spots + photos' }] },
+    { label: 'Excel / JSON (Plugin)', items: [
+      { cmd: 'xlsx-export', icon: 'table', label: 'Marks Excel', tip: 'Used UniFormat L1–L4 Marks (MK) (.xlsx)' },
+      { cmd: 'notes-xlsx', icon: 'table', label: 'Notes Excel', tip: 'Site Notes (NT) (.xlsx)' },
+      { cmd: 'issues-xlsx', icon: 'table', label: 'Issues Excel', tip: 'Site Issues (IS) (.xlsx)' },
+      { cmd: 'marks-json', icon: 'json', label: 'Marks JSON', tip: 'Marks JSON (_Marks.json)' },
+      { cmd: 'notes-json', icon: 'json', label: 'Notes JSON', tip: 'Notes JSON (_Notes.json)' },
+      { cmd: 'issues-json', icon: 'json', label: 'Issues JSON', tip: 'Issues JSON (_Issues.json)' }] },
+    { label: 'Photos, BCF & Backup', items: [
+      { cmd: 'photo-zip', icon: 'photo', label: 'Photo Pack ZIP', tip: 'Organized Marks / Notes / Issues photo folders + Photo_Directory.csv' },
       { cmd: 'photo-csv', icon: 'table', label: 'Photo Dir CSV', tip: 'Categorized Photo Directory CSV only' },
       { cmd: 'bcf-export', icon: 'bcf', label: 'Export BCF', tip: 'Open in Revit / Navisworks / Solibri / BIMcollab' },
       { cmd: 'bcf-import', icon: 'import', label: 'Import BCF' },
@@ -314,13 +317,17 @@ async function onCommand(cmd) {
     case 'settings': return settingsDialog();
     case 'bcf-export': return cmdExportBCF();
     case 'html-export': return cmdExportHTML();
+    case 'crop-html': return cmdExportCropHTML();
     case 'manual': return window.open(`./docs/manual.html?v=${APP_VERSION}`, '_blank');
-    case 'ifc-export': return cmdExportIFC();
+    case 'ifc-export': return cmdExportIFC('all');
+    case 'ifc-spot': return cmdExportIFC('spot');
     case 'xlsx-export': return cmdExportXLSX();
     case 'marks-json': return cmdExportSplitJSON('mark');
     case 'notes-xlsx': return cmdExportNotesXLSX();
     case 'notes-csv': return cmdExportNotesCSV();
     case 'notes-json': return cmdExportSplitJSON('note');
+    case 'issues-xlsx': return cmdExportIssuesXLSX();
+    case 'issues-json': return cmdExportSplitJSON('issue');
     case 'photo-zip': return cmdExportPhotoZip();
     case 'photo-csv': return cmdExportPhotoCSV();
     case 'csv-export': return cmdExportCSV();
@@ -948,7 +955,7 @@ function openMarkupEditor(m, isNew, openCamera = false) {
     </div>
     <div class="field"><span>Photos · <code style="font-size:10.5px;color:var(--accent)">${esc(itemNaming(draft, groupName(draft.group)).folderPath)}/</code></span><div class="photos" id="me-photos"></div></div>
     <div class="meta-grid">
-      <div><span>Code · Dataset</span><b class="mono">${esc(itemTag(draft))} · ${isObjectMark(draft) ? 'Object Mark (IFC)' : 'Read-Only Note'}</b></div>
+      <div><span>Code · Dataset</span><b class="mono">${esc(itemTag(draft))} · ${recordKind(draft) === 'mark' ? '● Mark (Yellow Sphere)' : recordKind(draft) === 'issue' ? '▲ Issue (Red Triangle)' : '■ Note (Blue Cube)'}</b></div>
       <div><span>Checked At</span><b class="mono">${esc(fmtDateTime(draft.checkedAt))}</b></div>
       <div class="span2"><span>Position · IFC (${esc(settings.units || 'm')}, Z-up — matches model)</span><b class="mono">X ${fmtCoord(draft.position.x)} · Y ${fmtCoord(draft.position.y)} · Z ${fmtCoord(draft.position.z)}</b>${draft.modelName ? `<code>Model: ${esc(draft.modelName)}</code>` : ''}</div>
       <div class="span2"><span>Host BIM element</span><b>${draft.element ? `${esc(draft.element.ifcType)} · ${esc(draft.element.name || '')}${draft.element.tag ? ` (Revit Id ${esc(draft.element.tag)})` : ''}` : '— (not linked to an element)'}</b>${draft.element && draft.element.guid ? `<code>${esc(draft.element.guid)}</code>` : ''}</div>
@@ -1110,7 +1117,8 @@ function openMarkupEditor(m, isNew, openCamera = false) {
 
 async function deleteMarkup(m) {
   if (m.locked) return toast('This item is locked — unlock it before deleting', 'warn');
-  const tag = itemTag(m), kindLbl = isObjectMark(m) ? 'Marks' : 'Notes';
+  const tag = itemTag(m), k = recordKind(m);
+  const kindLbl = k === 'mark' ? 'Marks' : k === 'issue' ? 'Issues' : 'Notes';
   if (!(await confirmBox('Delete item', `Delete ${tag} (${markupTitle(m)})? Remaining ${kindLbl} will automatically renumber.`, 'Delete', true))) return;
   app.project.markups = app.project.markups.filter((x) => x.id !== m.id);
   if (app.sel === m.id) app.sel = null;
@@ -1170,7 +1178,7 @@ function hideSelChip() { $('#selchip').hidden = true; }
 
 function refreshMarkers() {
   const P = app.project;
-  const list = P.markups.filter(filterFn()).map((m) => ({ id: m.id, number: m.number, label: pinLabel(m), position: m.position, color: statusColor(m) }));
+  const list = P.markups.filter(filterFn()).map((m) => ({ id: m.id, number: m.number, label: pinLabel(m), shape: shapeOf(m), position: m.position, color: statusColor(m) }));
   viewer.setMarkers(list, app.sel, settings.showMarkups);
   $('#mk-count').textContent = P.markups.length;
   renderBadges(); renderTrack(); updateGroupChip();
@@ -1180,7 +1188,8 @@ function filterFn() {
   return (m) => (gsel === 'all' || m.group === gsel) &&
     (f === 'all' ? true
       : f === 'marks' ? isObjectMark(m)
-      : f === 'notes' ? !isObjectMark(m)
+      : f === 'notes' ? isNoteOnly(m)
+      : f === 'issues' ? isIssue(m)
       : f === 'open' ? m.status === 'open' || m.status === 'in-progress'
       : f === 'done' ? m.status === 'resolved' || m.status === 'closed'
       : normType(m.type) === f);
@@ -1487,17 +1496,24 @@ function markupsHTML() {
   const P = app.project;
   const sel = P.markups.find((m) => m.id === app.sel);
   const markCount = P.markups.filter(isObjectMark).length;
-  const noteCount = P.markups.length - markCount;
-  const items = P.markups.filter(filterFn()).sort((a, b) => (isObjectMark(b) - isObjectMark(a)) || (b.number - a.number));
-  const filters = [['all', `All (${P.markups.length})`], ['marks', `Marks · IFC (${markCount})`], ['notes', `Notes (${noteCount})`], ['issue', 'Issues'], ['capture', 'Captures'], ['open', 'Open'], ['done', 'Done']];
+  const noteCount = P.markups.filter(isNoteOnly).length;
+  const issueCount = P.markups.filter(isIssue).length;
+  const kindOrder = { mark: 0, issue: 1, note: 2 };
+  const items = P.markups.filter(filterFn()).sort((a, b) => ((kindOrder[recordKind(a)] ?? 9) - (kindOrder[recordKind(b)] ?? 9)) || (b.number - a.number));
+  const filters = [['all', `All (${P.markups.length})`], ['marks', `● Marks (${markCount})`], ['notes', `■ Notes (${noteCount})`], ['issues', `▲ Issues (${issueCount})`], ['open', 'Open'], ['done', 'Done']];
   const gsel = app.mkGroup || 'all';
   const groupPills = (P.groups && P.groups.length) ? `<div class="filters"><button class="pill ${gsel === 'all' ? 'on' : ''}" data-group="all">All groups</button>${P.groups.map((g) => `<button class="pill ${gsel === g.id ? 'on' : ''}" data-group="${g.id}">${esc(g.name)}</button>`).join('')}</div>` : '';
   const famBadge = (m) => (isObjectMark(m) && m.family && m.family.familyName) ? `<div class="mk-fam-badge">${esc([m.family.uniformat || m.family.discipline, m.family.familyName, m.family.hostSurface ? `${m.family.hostSurface} ${Math.round(m.family.rotationDeg || 0)}°` : ''].filter(Boolean).join(' · '))}</div>` : '';
   const coordLine = (m) => `<div class="mk-coord-line"><span>X ${fmtCoord(m.position.x)} · Y ${fmtCoord(m.position.y)} · Z ${fmtCoord(m.position.z)}</span><span>${esc(fmtDateTime(m.checkedAt || m.createdAt))}</span></div>`;
+  const tagChip = (m) => {
+    const k = recordKind(m);
+    const sym = k === 'issue' ? '▲' : k === 'note' ? '■' : '●';
+    return `<span class="mk-tag-chip is-${k}">${sym} ${itemTag(m)}</span>`;
+  };
   const detail = sel ? `
     <div class="mk-detail">
       ${sel.photos[0] || sel.snapshot ? `<div class="mk-hero"><img src="${sel.photos[0] || sel.snapshot}" alt="">${sel.photos.length > 1 ? `<span class="badge">+${sel.photos.length - 1}</span>` : ''}</div>` : ''}
-      <div class="mk-dh"><span class="mk-pin" style="--c:${statusColor(sel)}">${pinLabel(sel)}</span><div><b><span class="mk-tag-chip ${isObjectMark(sel) ? 'is-mark' : ''}">${itemTag(sel)}</span>${esc(markupTitle(sel))}</b>
+      <div class="mk-dh"><span class="mk-pin is-${recordKind(sel)}" style="--c:${statusColor(sel)}">${pinLabel(sel)}</span><div><b>${tagChip(sel)}${esc(markupTitle(sel))}</b>
         <span class="muted small">${typeMeta(sel.type).label} · ${STATUSES[sel.status].label} · ${esc(sel.author || 'Site user')}</span>${famBadge(sel)}${coordLine(sel)}</div>
         ${sel.locked ? `<span class="lock-ic" title="Locked">${icon('lock')}</span>` : `<button class="icon-btn sm" data-mk="del" title="Delete (auto-renumbers remaining)">${icon('trash')}</button>`}</div>
       ${sel.text ? `<p class="mk-text">${esc(sel.text)}</p>` : ''}
@@ -1514,11 +1530,11 @@ function markupsHTML() {
     <div class="filters">${filters.map(([k, l]) => `<button class="pill ${app.mkFilter === k ? 'on' : ''}" data-filter="${k}">${l}</button>`).join('')}</div>
     <div class="mk-list">${items.map((m) => `
       <button class="mk-item ${m.id === app.sel ? 'on' : ''}" data-id="${m.id}">
-        <span class="mk-pin" style="--c:${statusColor(m)}">${pinLabel(m)}</span>
-        <span class="mk-body"><span class="mk-title"><span class="mk-tag-chip ${isObjectMark(m) ? 'is-mark' : ''}">${itemTag(m)}</span>${esc(markupTitle(m))}</span>
+        <span class="mk-pin is-${recordKind(m)}" style="--c:${statusColor(m)}">${pinLabel(m)}</span>
+        <span class="mk-body"><span class="mk-title">${tagChip(m)}${esc(markupTitle(m))}</span>
         <span class="mk-meta">${typeMeta(m.type).label} · ${esc(fmtDateTime(m.checkedAt || m.createdAt))} · X ${fmtCoord(m.position.x)} Y ${fmtCoord(m.position.y)} Z ${fmtCoord(m.position.z)}</span>${famBadge(m)}</span>
         <span class="mk-icons">${m.photos.length ? icon('image', 'sm') : ''}${m.locked ? icon('lock', 'sm') : ''}</span>
-      </button>`).join('') || `<div class="empty-list">${icon('pin')}<p>No items in this filter</p><span>Tap <b>Mark</b> below to place an IFC Object Mark (MK) or Site Note (NT)</span></div>`}</div>`;
+      </button>`).join('') || `<div class="empty-list">${icon('pin')}<p>No items in this filter</p><span>Tap <b>Mark</b> below to place a Mark (● MK), Note (■ NT) or Issue (▲ IS)</span></div>`}</div>`;
 }
 function viewsHTML() {
   const V = app.project.views;
@@ -2392,54 +2408,93 @@ async function cmdExportHTML() {
   } catch (e) { console.error(e); toast(`HTML export: ${e.message}`, 'error', 6000); }
   busy(false);
 }
-async function cmdExportIFC() {
+async function cmdExportCropHTML() {
   const P = app.project;
-  const objMarks = (P.markups || []).filter(isObjectMark);
-  if (!objMarks.length) return toast('No Object Marks (MK-###) to export to IFC yet — Notes are exported separately', 'warn', 4500);
-  busy('Creating IFC with Object Marks…');
+  if (!P || !P.markups.length) return toast('No spots (Mark / Note / Issue) to export yet', 'warn', 4000);
+  busy('Building HTML Coordinate & Crop View Report…');
+  try {
+    const { exportCropViewHTML } = await import('../../Exporters/cropreport.js');
+    let modelBounds = null;
+    if (viewer.models.children.length) {
+      const box = viewer.modelBox();
+      if (!box.isEmpty()) {
+        const a = viewer.worldToIfc(box.min), b = viewer.worldToIfc(box.max);
+        modelBounds = { minX: Math.min(a.x, b.x), maxX: Math.max(a.x, b.x), minY: Math.min(a.y, b.y), maxY: Math.max(a.y, b.y) };
+      }
+    }
+    const r = exportCropViewHTML(P, { groupName, modelBounds });
+    download(r.blob, `${slug(P.name)}_CropReport.html`);
+    toast(`Crop View HTML exported · ${r.count} spots (● ${r.counts.mark} MK · ■ ${r.counts.note} NT · ▲ ${r.counts.issue} IS)`, 'ok', 5000);
+  } catch (e) { console.error(e); toast(`Crop Report: ${e.message}`, 'error', 6000); }
+  busy(false);
+}
+async function cmdExportIFC(mode = 'all') {
+  const P = app.project;
+  if (!P || !P.markups.length) return toast('No spots (Mark / Note / Issue) to export to IFC yet', 'warn', 4500);
+  const isSpot = mode === 'spot';
+  busy(isSpot ? 'Creating IFC Spot Only (synced Base Point)…' : 'Creating IFC All (Model + 3D Spots)…');
   try {
     const { exportIfcWithMarks } = await import('../../Exporters/ifcmarks.js');
-    // append to the first loaded IFC model (same units / storeys / origin); otherwise a stand-alone IFC with the marks only
-    // (hide the IFC in View → Models to get a marks-only file)
-    const rec = P.models.find((m) => m.format === 'ifc' && !m.missing && m.visible !== false);
+    // Read loaded IFC model for merging (mode='all') OR syncing Base Point / Units / Storeys (mode='spot')
+    const rec = P.models.find((m) => m.format === 'ifc' && !m.missing && m.visible !== false) || P.models.find((m) => m.format === 'ifc' && !m.missing);
     const f = rec ? await store.getFile(rec.fileId) : null;
-    const r = exportIfcWithMarks(P, f ? f.data : null, { author: settings.author || 'NEXAR', groupName });
+    const r = exportIfcWithMarks(P, f ? f.data : null, { author: settings.author || 'NEXAR', groupName, mode });
     const base = f ? rec.name.replace(/\.ifc$/i, '') : slug(P.name);
-    download(r.blob, `${base}_Marks.ifc`);
-    toast(r.merged ? `${r.count} Object Mark${r.count === 1 ? '' : 's'} (MK) added into ${rec.name} (${r.schema}) — Notes excluded` : `IFC with ${r.count} Object Mark${r.count === 1 ? '' : 's'} (MK) — same model coordinates`, 'ok', 6000);
+    const fname = isSpot ? `${base}_NEXAR_Spots.ifc` : `${base}_NEXAR_All.ifc`;
+    download(r.blob, fname);
+    const summary = `● ${r.counts.mark} MK · ■ ${r.counts.note} NT · ▲ ${r.counts.issue} IS`;
+    toast(
+      r.merged
+        ? `IFC Export All (${r.schema}): model + ${r.count} spots (${summary})`
+        : `IFC Export Spot (${r.schema}): ${r.count} spots only (${summary})${r.syncedBasePoint ? ' · Base Point synced ✓' : ''}`,
+      'ok', 6000
+    );
   } catch (e) { console.error(e); toast(`IFC export: ${e.message}`, 'error', 6000); }
   busy(false);
 }
 async function cmdExportXLSX() {
   const P = app.project;
   const objMarks = (P && P.markups ? P.markups : []).filter(isObjectMark);
-  if (!objMarks.length) return toast('No Object Marks (MK-###) to export to UniFormat Excel yet', 'warn', 4000);
+  if (!objMarks.length) return toast('No Marks (MK-###) to export to UniFormat Excel yet', 'warn', 4000);
   busy('Building UniFormat Excel (Marks only)…');
   try {
     const { exportUniformatExcel } = await import('../../Exporters/xlsxexport.js');
     const r = await exportUniformatExcel(P, { groupName });
     download(r.blob, `${slug(P.name)}_Marks_UniFormat.xlsx`);
-    toast(`Marks Excel exported · ${r.summaryCount} UniFormat group${r.summaryCount === 1 ? '' : 's'} · ${r.itemCount} Object Mark${r.itemCount === 1 ? '' : 's'}`, 'ok', 4500);
+    toast(`Marks Excel exported · ${r.summaryCount} UniFormat group${r.summaryCount === 1 ? '' : 's'} · ${r.itemCount} Mark${r.itemCount === 1 ? '' : 's'}`, 'ok', 4500);
   } catch (e) { console.error(e); toast(`Excel export: ${e.message}`, 'error', 6000); }
   busy(false);
 }
 async function cmdExportNotesXLSX() {
   const P = app.project;
-  const notes = (P && P.markups ? P.markups : []).filter((m) => !isObjectMark(m));
-  if (!notes.length) return toast('No Notes / Comments (NT-###) in this project yet', 'warn', 4000);
+  const notes = (P && P.markups ? P.markups : []).filter(isNoteOnly);
+  if (!notes.length) return toast('No Notes (NT-###) in this project yet', 'warn', 4000);
   busy('Building Site Notes Excel (.xlsx)…');
   try {
     const { exportNotesExcel } = await import('../../Exporters/xlsxexport.js');
     const r = await exportNotesExcel(P, { groupName });
     download(r.blob, `${slug(P.name)}_Notes.xlsx`);
-    toast(`Notes Excel exported · ${r.itemCount} read-only note${r.itemCount === 1 ? '' : 's'} (NT)`, 'ok', 4500);
+    toast(`Notes Excel exported · ${r.itemCount} note${r.itemCount === 1 ? '' : 's'} (NT)`, 'ok', 4500);
   } catch (e) { console.error(e); toast(`Notes Excel: ${e.message}`, 'error', 6000); }
+  busy(false);
+}
+async function cmdExportIssuesXLSX() {
+  const P = app.project;
+  const issues = (P && P.markups ? P.markups : []).filter(isIssue);
+  if (!issues.length) return toast('No Issues (IS-###) in this project yet', 'warn', 4000);
+  busy('Building Site Issues Excel (.xlsx)…');
+  try {
+    const { exportIssuesExcel } = await import('../../Exporters/xlsxexport.js');
+    const r = await exportIssuesExcel(P, { groupName });
+    download(r.blob, `${slug(P.name)}_Issues.xlsx`);
+    toast(`Issues Excel exported · ${r.itemCount} issue${r.itemCount === 1 ? '' : 's'} (IS)`, 'ok', 4500);
+  } catch (e) { console.error(e); toast(`Issues Excel: ${e.message}`, 'error', 6000); }
   busy(false);
 }
 function cmdExportNotesCSV() {
   const P = app.project;
-  const notes = (P && P.markups ? P.markups : []).filter((m) => !isObjectMark(m));
-  if (!notes.length) return toast('No Notes / Comments (NT-###) to export yet', 'warn', 4000);
+  const notes = (P && P.markups ? P.markups : []).filter(isNoteOnly);
+  if (!notes.length) return toast('No Notes (NT-###) to export yet', 'warn', 4000);
   const rows = [['Tag', 'Number', 'Type', 'Status', 'Priority', 'Group', 'Title', 'Note / Comment', 'CheckedAt', 'ModelFile', 'X (m)', 'Y (m)', 'Z (m)', 'HostElement', 'IFC GUID', 'PhotoFolder', 'PhotoFiles', 'Author', 'Replies']];
   for (const m of notes) {
     const gn = groupName(m.group);
@@ -2461,25 +2516,34 @@ function cmdExportNotesCSV() {
 }
 function cmdExportSplitJSON(kind) {
   const P = app.project;
-  const wantMark = kind === 'mark';
-  const items = (P && P.markups ? P.markups : []).filter((m) => wantMark ? isObjectMark(m) : !isObjectMark(m));
-  if (!items.length) return toast(wantMark ? 'No Object Marks (MK-###) to export yet' : 'No Notes / Comments (NT-###) to export yet', 'warn', 4000);
+  const items = (P && P.markups ? P.markups : []).filter((m) => recordKind(m) === kind);
+  const meta = {
+    mark:  { schema: 'nexar.marks/1.0',  label: 'Marks',  code: 'MK-###', suffix: '_Marks.json',  shape: 'Sphere',              color: MARKUP_TYPES.family.color },
+    note:  { schema: 'nexar.notes/1.0',  label: 'Notes',  code: 'NT-###', suffix: '_Notes.json',  shape: 'Cube',                color: MARKUP_TYPES.note.color   },
+    issue: { schema: 'nexar.issues/1.0', label: 'Issues', code: 'IS-###', suffix: '_Issues.json', shape: 'EquilateralTriangle', color: MARKUP_TYPES.issue.color  }
+  }[kind] || { schema: 'nexar.notes/1.0', label: 'Notes', code: 'NT-###', suffix: '_Notes.json', shape: 'Cube', color: MARKUP_TYPES.note.color };
+  if (!items.length) return toast(`No ${meta.label} (${meta.code}) to export yet`, 'warn', 4000);
   const payload = {
-    schema: wantMark ? 'nexar.marks/1.0' : 'nexar.notes/1.0',
-    recordKind: wantMark ? 'mark' : 'note',
+    schema: meta.schema,
+    recordKind: kind,
+    shape3D: meta.shape,
+    colorHex: meta.color,
     projectId: P.id,
     projectName: P.name,
     exportedAt: new Date().toISOString(),
-    coordinateSystem: 'IFC metres Z-up (matches imported model)',
+    coordinateSystem: 'IFC metres Z-up (synced to imported model Base Point)',
     models: (P.models || []).map((x) => ({ name: x.name, format: x.format, visible: x.visible !== false })),
     count: items.length,
     items: items.map((m) => ({
       tag: itemTag(m),
       number: m.number,
       kind: recordKind(m),
+      shape3D: meta.shape,
+      colorHex: meta.color,
       type: normType(m.type),
       status: m.status,
       priority: m.priority,
+      assignedTo: m.assignedTo || '',
       group: groupName(m.group),
       title: markupTitle(m),
       note: m.text || '',
@@ -2489,16 +2553,16 @@ function cmdExportSplitJSON(kind) {
       author: m.author || '',
       modelName: m.modelName || '',
       position: { x: +m.position.x.toFixed(4), y: +m.position.y.toFixed(4), z: +m.position.z.toFixed(4) },
-      family: wantMark ? (m.family || null) : undefined,
+      cameraViewpoint: m.viewpoint || null,
+      family: kind === 'mark' ? (m.family || null) : undefined,
       element: m.element || null,
       gps: m.gps || null,
       photoCount: (m.photos || []).length,
       replies: m.replies || []
     }))
   };
-  const suffix = wantMark ? '_Marks.json' : '_Notes.json';
-  download(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `${slug(P.name)}${suffix}`);
-  toast(`${wantMark ? 'Marks' : 'Notes'} JSON exported · ${items.length} item${items.length === 1 ? '' : 's'}`, 'ok', 3500);
+  download(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `${slug(P.name)}${meta.suffix}`);
+  toast(`${meta.label} JSON exported · ${items.length} item${items.length === 1 ? '' : 's'}`, 'ok', 3500);
 }
 async function cmdExportPhotoZip() {
   const P = app.project;
@@ -3136,20 +3200,23 @@ if (mqDark.addEventListener) mqDark.addEventListener('change', () => { if (setti
   if (expBtn) {
     expBtn.innerHTML = `${icon('export')}<span>Export</span>${icon('chevDown', 'chev')}`;
     expBtn.onclick = (e) => openPopover(e.currentTarget, [
-      { sec: 'Object Marks (MK · IFC / Revit)' },
-      { icon: 'ifc', label: 'IFC + Marks (Objects only)', sub: '.ifc', onClick: () => onCommand('ifc-export') },
-      { icon: 'table', label: 'UniFormat Excel (Marks only)', sub: '.xlsx', onClick: () => onCommand('xlsx-export') },
-      { icon: 'json', label: 'Marks JSON (Objects only)', sub: '_Marks.json', onClick: () => onCommand('marks-json') },
+      { sec: '3D BIM & Crop Report (● MK · ■ NT · ▲ IS)' },
+      { icon: 'ifc', label: 'IFC Export All (Model + Spots)', sub: '.ifc', onClick: () => onCommand('ifc-export') },
+      { icon: 'target', label: 'IFC Export Spot (Spots Only · Synced)', sub: '.ifc', onClick: () => onCommand('ifc-spot') },
+      { icon: 'html', label: 'HTML Crop View & Coords Report', sub: '.html', onClick: () => onCommand('crop-html') },
+      { icon: 'orbit', label: 'Interactive 3D HTML Viewer', sub: '.html', onClick: () => onCommand('html-export') },
       { sep: true },
-      { sec: 'Site Notes (NT · Read-Only)' },
-      { icon: 'table', label: 'Notes Excel (Notes only)', sub: '.xlsx', onClick: () => onCommand('notes-xlsx') },
-      { icon: 'table', label: 'Notes CSV (Notes only)', sub: '.csv', onClick: () => onCommand('notes-csv') },
-      { icon: 'json', label: 'Notes JSON (Notes only)', sub: '_Notes.json', onClick: () => onCommand('notes-json') },
+      { sec: 'Data by Stream (Excel / Plugin JSON)' },
+      { icon: 'table', label: 'Marks UniFormat Excel (● MK)', sub: '.xlsx', onClick: () => onCommand('xlsx-export') },
+      { icon: 'table', label: 'Notes Excel (■ NT)', sub: '.xlsx', onClick: () => onCommand('notes-xlsx') },
+      { icon: 'table', label: 'Issues Excel (▲ IS)', sub: '.xlsx', onClick: () => onCommand('issues-xlsx') },
+      { icon: 'json', label: 'Marks JSON (● MK)', sub: '_Marks.json', onClick: () => onCommand('marks-json') },
+      { icon: 'json', label: 'Notes JSON (■ NT)', sub: '_Notes.json', onClick: () => onCommand('notes-json') },
+      { icon: 'json', label: 'Issues JSON (▲ IS)', sub: '_Issues.json', onClick: () => onCommand('issues-json') },
       { sep: true },
-      { sec: 'Photos & Full Project' },
+      { sec: 'Photos, BCF & Project Backup' },
       { icon: 'photo', label: 'Photo Pack + Directory CSV', sub: '.zip', onClick: () => onCommand('photo-zip') },
       { icon: 'table', label: 'Photo Directory CSV', sub: '.csv', onClick: () => onCommand('photo-csv') },
-      { icon: 'html', label: 'Interactive HTML (1-file)', sub: '.html', onClick: () => onCommand('html-export') },
       { icon: 'bcf', label: 'Export BCF 3.0', sub: '.bcfzip', onClick: () => onCommand('bcf-export') },
       { icon: 'json', label: 'Full Project Backup', sub: '.nexar.json', onClick: () => onCommand('json-export') },
       { icon: 'import', label: 'Import BCF / Project JSON', onClick: () => onCommand('json-import') },

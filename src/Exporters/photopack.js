@@ -3,7 +3,7 @@
 
 import JSZip from 'jszip';
 import { UNIFORMAT_L1, UNIFORMAT_L2, UNIFORMAT_CATALOG } from '../../settings/uniformat.js';
-import { STATUSES, typeMeta, isObjectMark, itemTag, fmtDateTime, markupTitle } from '../Core/Nexar.Document/project.js';
+import { STATUSES, typeMeta, recordKind, isObjectMark, itemTag, fmtDateTime, markupTitle } from '../Core/Nexar.Document/project.js';
 
 const L1_MAP = Object.fromEntries(UNIFORMAT_L1.map((x) => [x.code, x.name]));
 const L2_MAP = Object.fromEntries(UNIFORMAT_L2.map((x) => [x.code, x.name]));
@@ -39,7 +39,8 @@ export function parseUniformat(rawCode, fallbackGroup = '') {
 // Compute consistent Folder Path + Base Name + Photo Filenames for a single markup item
 export function itemNaming(m, groupName = '') {
   const F = m.family || {};
-  const isMark = isObjectMark(m);
+  const kind = recordKind(m);
+  const isMark = kind === 'mark';
   const lv = isMark ? parseUniformat(F.uniformat || F.discipline || '', F.group || '') : { l1: '', l1Name: '', l2: '', l2Name: '', l3: '', l3Name: '', l4: '' };
   const tag = itemTag(m);
   const tLabel = typeMeta(m.type).label;
@@ -51,6 +52,8 @@ export function itemNaming(m, groupName = '') {
     const l1Dir = lv.l1 ? `${lv.l1}_${cleanToken(lv.l1Name || 'Group', 22)}` : 'Unclassified';
     const l3Dir = lv.l3 ? `${cleanToken(lv.l4 || lv.l3, 14)}_${cleanToken(cat, 26)}` : cleanToken(cat, 28);
     folderPath = `Marks/${l1Dir}/${l3Dir}`;
+  } else if (kind === 'issue') {
+    folderPath = `Issues`;
   } else {
     folderPath = `Notes/${cleanToken(tLabel, 20)}`;
   }
@@ -77,7 +80,8 @@ export function itemNaming(m, groupName = '') {
     })()
     : null;
 
-  return { tag, recordKind: isMark ? 'Mark' : 'Note', lv, category: cat, familyName: isMark ? (F.familyName || '') : '', baseName, folderPath, sitePhotos, viewSnap };
+  const kindLabel = kind === 'mark' ? 'Mark' : kind === 'issue' ? 'Issue' : 'Note';
+  return { tag, recordKind: kindLabel, lv, category: cat, familyName: isMark ? (F.familyName || '') : '', baseName, folderPath, sitePhotos, viewSnap };
 }
 
 function dataUrlExt(d) {
@@ -107,10 +111,11 @@ export function buildPhotoDirectoryCSV(project, { groupName = () => '', include3
     'HostSurface', 'FacingDeg', 'OffsetZ', 'X', 'Y', 'Z', 'HostRevitId', 'HostElement', 'HostGUID', 'Author', 'Created'
   ];
   const rows = [headers];
+  const kindOrder = { mark: 0, issue: 1, note: 2 };
   const marks = (project.markups || [])
-    .filter((m) => kindFilter === 'all' || (kindFilter === 'mark' ? isObjectMark(m) : !isObjectMark(m)))
+    .filter((m) => kindFilter === 'all' || recordKind(m) === kindFilter)
     .slice()
-    .sort((a, b) => (isObjectMark(b) - isObjectMark(a)) || ((a.number || 0) - (b.number || 0)));
+    .sort((a, b) => ((kindOrder[recordKind(a)] ?? 9) - (kindOrder[recordKind(b)] ?? 9)) || ((a.number || 0) - (b.number || 0)));
 
   for (const m of marks) {
     const F = m.family || {};

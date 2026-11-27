@@ -1,5 +1,5 @@
 // NEXAR service worker: app shell cache-first, CDN libraries cached on first use → works offline on site.
-const VERSION = 'nexar-v2.6.0';
+const VERSION = 'nexar-v2.7.0';
 const SHELL = [
   './',
   './index.html',
@@ -20,6 +20,7 @@ const SHELL = [
   './src/Exporters/bcf.js',
   './src/Exporters/ifcmarks.js',
   './src/Exporters/htmlexport.js',
+  './src/Exporters/cropreport.js',
   './src/Exporters/xlsxexport.js',
   './src/Exporters/photopack.js',
   './src/App/Nexar.Web/css/app.css',

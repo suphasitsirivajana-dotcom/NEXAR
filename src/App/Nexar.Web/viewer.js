@@ -16,18 +16,61 @@ function canvasTex(key, w, h, draw) {
   texCache.set(key, t);
   return t;
 }
-function pinTexture(color, label, selected) {
-  return canvasTex(`pin|${color}|${label}|${selected}`, 112, 144, (g, w) => {
+// 3D pin matching NEXAR / IFC 3D shapes:
+//   sphere   (Mark  · Yellow) = round circle pin
+//   cube     (Note  · Blue)   = rounded square pin
+//   triangle (Issue · Red)    = equilateral triangle pin
+function pinTexture(color, label, selected, shape = 'sphere') {
+  return canvasTex(`pin|${shape}|${color}|${label}|${selected}`, 116, 144, (g, w) => {
     const cx = w / 2, cy = 50, r = 38;
     g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 12; g.shadowOffsetY = 4;
-    g.beginPath(); g.arc(cx, cy, r, Math.PI * 0.82, Math.PI * 2.18);
-    g.lineTo(cx, 138); g.closePath();
-    g.fillStyle = color; g.fill();
-    g.shadowColor = 'transparent';
-    g.lineWidth = selected ? 7 : 3.5; g.strokeStyle = selected ? '#ffffff' : 'rgba(255,255,255,.85)'; g.stroke();
-    g.beginPath(); g.arc(cx, cy, r - 11, 0, Math.PI * 2); g.fillStyle = 'rgba(8,10,14,.86)'; g.fill();
-    g.fillStyle = '#fff'; g.font = `700 ${label.length > 2 ? 24 : 32}px Inter, system-ui, sans-serif`;
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, cx, cy + 1);
+    g.fillStyle = color;
+    g.strokeStyle = selected ? '#ffffff' : 'rgba(255,255,255,.88)';
+    g.lineWidth = selected ? 7 : 3.5;
+
+    if (shape === 'triangle') {
+      // Bold equilateral triangle head + pointer stem
+      const topY = 8, baseY = 82, halfW = 43;
+      g.beginPath();
+      g.moveTo(cx, topY);
+      g.lineTo(cx + halfW, baseY);
+      g.lineTo(cx + 12, baseY);
+      g.lineTo(cx, 138);
+      g.lineTo(cx - 12, baseY);
+      g.lineTo(cx - halfW, baseY);
+      g.closePath();
+      g.fill(); g.shadowColor = 'transparent'; g.stroke();
+      g.beginPath();
+      g.moveTo(cx, topY + 18);
+      g.lineTo(cx + halfW - 15, baseY - 9);
+      g.lineTo(cx - halfW + 15, baseY - 9);
+      g.closePath();
+      g.fillStyle = 'rgba(8,10,14,.86)'; g.fill();
+      g.fillStyle = '#fff'; g.font = `700 ${label.length > 2 ? 21 : 26}px Inter, system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, cx, 57);
+    } else if (shape === 'cube') {
+      // Crisp square head + pointer stem
+      const s = 35;
+      g.beginPath();
+      g.roundRect(cx - s, cy - s, s * 2, s * 2, 12);
+      g.moveTo(cx - 14, cy + s - 2);
+      g.lineTo(cx, 138);
+      g.lineTo(cx + 14, cy + s - 2);
+      g.fill(); g.shadowColor = 'transparent'; g.stroke();
+      g.beginPath();
+      g.roundRect(cx - (s - 10), cy - (s - 10), (s - 10) * 2, (s - 10) * 2, 7);
+      g.fillStyle = 'rgba(8,10,14,.86)'; g.fill();
+      g.fillStyle = '#fff'; g.font = `700 ${label.length > 2 ? 24 : 31}px Inter, system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, cx, cy + 1);
+    } else {
+      // Round sphere/circle head + pointer stem
+      g.beginPath(); g.arc(cx, cy, r, Math.PI * 0.82, Math.PI * 2.18);
+      g.lineTo(cx, 138); g.closePath();
+      g.fill(); g.shadowColor = 'transparent'; g.stroke();
+      g.beginPath(); g.arc(cx, cy, r - 11, 0, Math.PI * 2); g.fillStyle = 'rgba(8,10,14,.86)'; g.fill();
+      g.fillStyle = '#fff'; g.font = `700 ${label.length > 2 ? 24 : 32}px Inter, system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, cx, cy + 1);
+    }
   });
 }
 function badgeTexture(label, color) {
@@ -545,7 +588,7 @@ export class Viewer extends EventTarget {
     const ps = (this.navPrefs && this.navPrefs.pinScale) || 1;
     for (const m of list) {
       const sel = m.id === selectedId;
-      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: pinTexture(m.color, String(m.label || m.number), sel), depthTest: false, sizeAttenuation: false, transparent: true }));
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: pinTexture(m.color, String(m.label || m.number), sel, m.shape || 'sphere'), depthTest: false, sizeAttenuation: false, transparent: true }));
       s.center.set(0.5, 0.02);
       const k = (sel ? 0.074 : 0.06) * ps;
       s.scale.set(k * 0.78, k, 1);
